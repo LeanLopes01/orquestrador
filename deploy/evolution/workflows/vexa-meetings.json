@@ -1,0 +1,72 @@
+{
+  "id": "jwc42f13c4239c98c8",
+  "name": "Jarvis catalog · Vexa Meetings",
+  "active": false,
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "jwc42f13c4239c98c8",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jarvis-catalog/vexa-meetings",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jarvisGatewayAuth",
+          "name": "Jarvis gateway"
+        }
+      }
+    },
+    {
+      "id": "connector",
+      "name": "Connector",
+      "type": "CUSTOM.jarvisCatalog",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "template": "vexa-meetings",
+        "googleOAuth": false,
+        "notionAuth": false
+      },
+      "credentials": {
+        "jarvisConnection": {
+          "id": "jcc42f13c4239c98c8",
+          "name": "Jarvis · Vexa Meetings"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Request": {
+      "main": [
+        [
+          {
+            "node": "Connector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 70
+  }
+}

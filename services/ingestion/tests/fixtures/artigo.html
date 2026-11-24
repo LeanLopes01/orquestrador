@@ -1,0 +1,11 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Grid fictício — documentação de teste</title></head>
+<body><nav>Menu Início Login</nav>
+<article>
+<h1>Grid fictício</h1>
+<p>Este documento sintético descreve como um grid fictício converte posições do mundo em células. Ele existe apenas para os testes do extrator e não descreve o DiceVTT.</p>
+<h2>Conversão</h2>
+<p>Para converter uma posição, divida pela largura da célula e arredonde para baixo. Valores negativos também são tratados com arredondamento para baixo, preservando a continuidade.</p>
+<table><tr><th>Entrada</th><th>Célula</th></tr><tr><td>1.5</td><td>1</td></tr><tr><td>-0.5</td><td>-1</td></tr></table>
+<pre><code>var cell = Mathf.FloorToInt(world.x / size);</code></pre>
+<ul><li>Primeiro item da lista de regras fictícias.</li><li>Segundo item, com acentuação: ação, posição.</li></ul>
+</article><footer>Rodapé com links</footer></body></html>

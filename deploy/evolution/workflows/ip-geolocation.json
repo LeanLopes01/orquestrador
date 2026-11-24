@@ -1,0 +1,72 @@
+{
+  "id": "jwd6c8cdf1e074204b",
+  "name": "Jarvis catalog · IP Geolocation",
+  "active": false,
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "jwd6c8cdf1e074204b",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jarvis-catalog/ip-geolocation",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jarvisGatewayAuth",
+          "name": "Jarvis gateway"
+        }
+      }
+    },
+    {
+      "id": "connector",
+      "name": "Connector",
+      "type": "CUSTOM.jarvisCatalog",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "template": "ip-geolocation",
+        "googleOAuth": false,
+        "notionAuth": false
+      },
+      "credentials": {
+        "jarvisConnection": {
+          "id": "jcd6c8cdf1e074204b",
+          "name": "Jarvis · IP Geolocation"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Request": {
+      "main": [
+        [
+          {
+            "node": "Connector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 70
+  }
+}

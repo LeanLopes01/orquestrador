@@ -1,0 +1,72 @@
+{
+  "id": "jwf8e88cddc09d4723",
+  "name": "Jarvis catalog · Fitness Buddy",
+  "active": false,
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "jwf8e88cddc09d4723",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jarvis-catalog/fitness-buddy",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jarvisGatewayAuth",
+          "name": "Jarvis gateway"
+        }
+      }
+    },
+    {
+      "id": "connector",
+      "name": "Connector",
+      "type": "CUSTOM.jarvisCatalog",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "template": "fitness-buddy",
+        "googleOAuth": false,
+        "notionAuth": false
+      },
+      "credentials": {
+        "jarvisConnection": {
+          "id": "jcf8e88cddc09d4723",
+          "name": "Jarvis · Fitness Buddy"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Request": {
+      "main": [
+        [
+          {
+            "node": "Connector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 70
+  }
+}

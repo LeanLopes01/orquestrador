@@ -1,0 +1,106 @@
+# Copie para .local/discovery.toml. Caminhos relativos resolvem a partir DESTE arquivo.
+# Scripts, embeddings, gerador, tokens e portas vêm das configs da ingestão e do RAG.
+ingestion_config = "ingestion.toml"
+rag_config = "rag.toml"
+state_path = "discovery/state.sqlite3"
+cache_root = "discovery/cache"
+catalog_ttl_days = 7                 # índices oficiais são baixados de novo depois disso
+
+[limits]
+max_api_per_run = 250                # páginas de API usadas no código, por rodada (lotes divididos automaticamente)
+max_topic_per_run = 150              # páginas de manual por tópico (AirLLM/perguntas/lista fixa)
+min_files_per_symbol = 1             # símbolo precisa aparecer em N scripts
+include_members = true               # Physics2D.Raycast, Transform.SetParent...
+
+[topics]
+min_score = 0.48                     # similaridade mínima tópico ↔ título; abaixo disso medido como ruído
+results_per_topic = 8
+use_recent_asks = true               # perguntas feitas ao RAG viram tópicos
+extra = [
+  "Grid and Tilemap 2D layout cell coordinates",
+  "Tilemap rule tiles isometric hexagonal",
+  "Physics2D Raycast Collider2D layer mask",
+  "2D lighting shadows Universal Render Pipeline",
+  "ScriptableObject data persistence architecture",
+  "Netcode for GameObjects RPC ServerRpc ClientRpc",
+  "NetworkVariable synchronization custom serialization",
+  "Steamworks matchmaking lobby creation invite friends",
+  "Steamworks P2P networking sockets relay messages",
+]
+
+[llm]
+enabled = true                       # usa o gerador do rag.toml (AirLLM, ~1 s/token em CPU)
+topics = 8
+max_new_tokens = 160
+
+[run]
+poll_seconds = 3
+batch_timeout_minutes = 90
+
+# Índices oficiais. kind: unity_pages | unity_toc | docfx_xrefmap | html_links
+# api = casa com símbolos do código; topics = entra na busca por tópicos.
+
+[[catalogs]]
+id = "unity-scripting"
+kind = "unity_pages"
+index = "https://docs.unity3d.com/6000.3/Documentation/ScriptReference/docdata/index.js"
+base = "https://docs.unity3d.com/6000.3/Documentation/ScriptReference/"
+api = true
+
+[[catalogs]]
+id = "unity-manual"
+kind = "unity_toc"
+index = "https://docs.unity3d.com/6000.3/Documentation/Manual/docdata/toc.json"
+base = "https://docs.unity3d.com/Packages/com.unity.ugui@2.0/"
+topics = true
+
+[[catalogs]]
+id = "ugui-api"
+kind = "docfx_xrefmap"
+index = "https://docs.unity3d.com/Packages/com.unity.ugui@2.0/xrefmap.yml"
+base = "https://docs.unity3d.com/Packages/com.unity.ugui@2.0/"
+api = true
+
+[[catalogs]]
+id = "ugui-manual"
+kind = "html_links"
+index = "https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/toc.html"
+base = "https://docs.unity3d.com/Packages/com.unity.ugui@2.0/manual/"
+topics = true
+
+[[catalogs]]
+id = "inputsystem-api"
+kind = "docfx_xrefmap"
+index = "https://docs.unity3d.com/Packages/com.unity.inputsystem@1.18/xrefmap.yml"
+base = "https://docs.unity3d.com/Packages/com.unity.inputsystem@1.18/"
+api = true
+
+[[catalogs]]
+id = "inputsystem-manual"
+kind = "html_links"
+index = "https://docs.unity3d.com/Packages/com.unity.inputsystem@1.18/manual/toc.html"
+base = "https://docs.unity3d.com/Packages/com.unity.inputsystem@1.18/manual/"
+topics = true
+
+[[catalogs]]
+id = "ngo-api"
+kind = "docfx_xrefmap"
+index = "https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.10/xrefmap.yml"
+base = "https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.10/"
+api = true
+
+[[catalogs]]
+id = "ngo-manual"
+kind = "html_links"
+index = "https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.10/manual/toc.html"
+base = "https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@2.10/manual/"
+topics = true
+
+[[catalogs]]
+id = "facepunch-steamworks"           # wrapper usado pelo DiceVTT (using Steamworks.Data)
+kind = "html_links"
+index = "https://wiki.facepunch.com/steamworks/"
+base = "https://wiki.facepunch.com/steamworks/"
+namespace = "Steamworks"
+api = true
+topics = true

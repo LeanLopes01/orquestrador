@@ -1,0 +1,72 @@
+{
+  "id": "jwfee5781a1132abfd",
+  "name": "Jarvis catalog · TikTok Ads",
+  "active": false,
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "jwfee5781a1132abfd",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jarvis-catalog/tiktok-ads",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jarvisGatewayAuth",
+          "name": "Jarvis gateway"
+        }
+      }
+    },
+    {
+      "id": "connector",
+      "name": "Connector",
+      "type": "CUSTOM.jarvisCatalog",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "template": "tiktok-ads",
+        "googleOAuth": false,
+        "notionAuth": false
+      },
+      "credentials": {
+        "jarvisConnection": {
+          "id": "jcfee5781a1132abfd",
+          "name": "Jarvis · TikTok Ads"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Request": {
+      "main": [
+        [
+          {
+            "node": "Connector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 70
+  }
+}

@@ -1,0 +1,59 @@
+# Copie para .local/rag.toml. Caminhos relativos resolvem a partir DESTE arquivo.
+project_id = "dicevtt"
+unity_project_root = "C:/ProjetoTablepRPG/DiceVTT"
+scripts_root = "C:/ProjetoTablepRPG/DiceVTT/Assets/Scripts"
+docs_root = "../documentacao_rag"            # mesmo diretório que output_root da ingestão
+# No Windows o Chroma exige caminho ASCII (acentos quebram a reabertura do índice HNSW).
+chroma_path = "${LOCALAPPDATA}/DiceVTT-RAG/chroma"
+index_state_path = "rag/index-state.sqlite3"
+token_path = "rag/api-token"
+log_dir = "rag/logs"
+offline = true                               # HF_HUB_OFFLINE; modelos precisam estar em disco
+
+[service]
+host = "127.0.0.1"
+port = 8767
+
+[embedding]
+# Padrão do plano. Para perguntas em PT-BR prefira o multilíngue (exige reindexação):
+#   repo_id = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+repo_id = "sentence-transformers/all-MiniLM-L6-v2"
+local_dir = "rag/models/embeddings/all-MiniLM-L6-v2"
+revision = ""                                # preenchido por prepare-models (rag-model.json)
+device = "cpu"
+normalize = true
+batch_size = 32
+
+[retrieval]
+code_top_k = 4
+doc_top_k = 4
+candidate_cap = 12
+max_script_bytes = 1048576
+read_attempts = 3
+max_query_chars = 2000
+
+[chunking]
+chunk_tokens = 200
+overlap_tokens = 30
+fallback_encoding = "cp1252"
+
+[watcher]
+enabled = true
+debounce_ms = 500
+queue_limit = 2000
+
+[generator]
+enabled = true
+repo_id = "Qwen/Qwen2.5-1.5B-Instruct"
+model_path = "rag/models/generator/Qwen2.5-1.5B-Instruct"
+shards_path = "rag/shards"
+device = "cpu"                               # cpu | cuda:0 (GPU AMD sem CUDA: cpu)
+dtype = "float32"                            # float32 no CPU; bfloat16/float16 em GPU
+max_seq_len = 2048
+max_new_tokens = 384
+compression = ""                             # "" | 4bit | 8bit (exige bitsandbytes)
+prefetching = false
+
+[jobs]
+result_ttl_hours = 24
+ask_queue_limit = 4

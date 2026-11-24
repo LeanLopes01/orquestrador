@@ -1,0 +1,72 @@
+{
+  "id": "jwf4165d77e1606199",
+  "name": "Jarvis catalog · Google Drive",
+  "active": false,
+  "nodes": [
+    {
+      "id": "entry",
+      "name": "Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "jwf4165d77e1606199",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "jarvis-catalog/google-drive",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jarvisGatewayAuth",
+          "name": "Jarvis gateway"
+        }
+      }
+    },
+    {
+      "id": "connector",
+      "name": "Connector",
+      "type": "CUSTOM.jarvisCatalog",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "template": "google-drive",
+        "googleOAuth": false,
+        "notionAuth": false
+      },
+      "credentials": {
+        "jarvisConnection": {
+          "id": "jcf4165d77e1606199",
+          "name": "Jarvis · Google Drive"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Request": {
+      "main": [
+        [
+          {
+            "node": "Connector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false,
+    "executionTimeout": 70
+  }
+}

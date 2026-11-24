@@ -1,0 +1,20 @@
+.env
+workflows/deployed/
+*.log
+*.bak
+__pycache__/
+.DS_Store
+node_modules/
+scripts/
+.mcp.json
+.claude/
+docs/
+CLAUDE.local.md
+n8n-claw-templates/
+website/
+docker-compose.override.yml
+docker-compose.pg17.yml
+volumes/
+
+# Datenbank-Abzuege enthalten Klartext-Zugangsdaten und gehoeren nie ins Repo
+n8n-claw-backup-*.json

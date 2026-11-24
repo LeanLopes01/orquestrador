@@ -1,0 +1,110 @@
+# Modelo da configuração do runner de relatórios. Copie para .local/diagnostics.toml.
+# Caminhos relativos resolvem a partir deste arquivo; ${VAR} expande variáveis de ambiente.
+project_id = "dicevtt"
+project_name = "DiceVTT"
+project_root = "C:/ProjetoTablepRPG/DiceVTT"
+state_path = "audits/audits.sqlite3"
+settings_path = "audits/config.json"
+runs_root = "audits/runs"
+log_dir = "audits/logs"
+token_path = "audits/api-token"
+
+[service]
+host = "127.0.0.1"
+port = 8768
+
+[limits]
+light_deadline_seconds = 90
+command_timeout_seconds = 20
+rag_wait_seconds = 30        # espera o RAG que sobe junto na abertura
+log_read_bytes = 2097152     # 2 MB do fim de cada log
+max_findings_per_check = 40
+scan_file_limit = 60000
+
+[tools]
+git = "git"
+plastic_cm = "C:/Program Files/PlasticSCM5/client/cm.exe"
+unity_editors = "C:/Program Files/Unity/Hub/Editor"
+
+[logs]
+editor_log = "${LOCALAPPDATA}/Unity/Editor/Editor.log"
+player_log_dir = "${USERPROFILE}/AppData/LocalLow/DiceVTT inc/DiceVTT"
+
+[rag]
+config = "rag.toml"           # o runner só lê health; não indexa nem gera
+
+# Perfil completo: cópia isolada + Unity em lote. Nada roda no projeto de origem.
+[full]
+audit_root = "C:/DiceVTT-Audit"        # ASCII, fora do projeto: snapshots/<run>/ e cache/Library
+deadline_seconds = 3600                # o job inteiro
+unity_timeout_seconds = 1800           # cada execução da Unity
+import_timeout_seconds = 2700          # a primeira importação sem cache de Library é bem mais lenta
+copy_dirs = ["Assets", "Packages", "ProjectSettings"]
+# Dados do jogo copiados para o persistentDataPath ISOLADO da auditoria (productName + sufixo).
+provision = ["sistemas", "sistemas_layouts"]
+product_suffix = "-Audit"
+
+# Validadores do projeto conferidos um a um: cena temporária, nada salvo, relatório + exit 0/1.
+# Fora da lista de propósito: os que salvam cena/prefab (MontarTudoEmLote) ou gravam em Assets.
+[[full.validators]]
+id = "cyberpunk"
+name = "Ficha Cyberpunk Alpha"
+method = "ConferenciaFichaCyberpunkAlpha.ConferirEmLote"
+report_arg = "-relatorioCyberpunk"
+
+[[full.validators]]
+id = "tela-modular"
+name = "Tela de criação modular"
+method = "ValidacaoDeTelaModular.ValidarEmLote"
+report_arg = "-relatorioModular"
+
+[[full.validators]]
+id = "visualizacao-modular"
+name = "Tela da ficha modular"
+method = "ValidacaoDeVisualizacaoModular.ValidarEmLote"
+report_arg = "-relatorioModular"
+
+[[full.validators]]
+id = "iluminacao"
+name = "Iluminação das salas"
+method = "ConferenciaIluminacao.ConferirEmLote"
+report_arg = "-relatorioIluminacao"
+
+[[full.validators]]
+id = "tela-itens"
+name = "Tela de itens"
+method = "ConferenciaTelaItens.ConferirEmLote"
+report_arg = "-relatorioTelaItens"
+
+[[full.validators]]
+id = "guildas"
+name = "Guildas"
+method = "DiceVTT.Guildas.Editor.GuildsBatchValidation.ValidarEmLote"
+report_arg = "-relatorioGuildas"
+
+[[full.validators]]
+id = "porta-janela"
+name = "Prefabs de porta e janela"
+method = "PortaJanelaPrefabValidacao.ValidarEmLote"
+report_arg = "-relatorioPortaPrefab"
+
+[[full.validators]]
+id = "dnd-regression"
+name = "Regressão da criação D&D (Play Mode)"
+method = "DndCreationRegression.Run"
+report_arg = "-dndResults"
+
+[[full.validators]]
+id = "salas-regression"
+name = "Regressão de salas e campanhas (Play Mode)"
+method = "SalasCampanhasRegression.Run"
+report_arg = "-roomResults"
+
+# Investigação opcional por IA (preferência "Investigar com IA" + provedor na tela Relatórios).
+[ai]
+max_findings = 3                # ocorrências investigadas por relatório (as mais graves)
+local_timeout_seconds = 900     # por ocorrência no AirLLM local (~1 token/s)
+total_timeout_seconds = 2700
+claude_command = "claude"
+claude_model = "sonnet"
+claude_timeout_seconds = 300

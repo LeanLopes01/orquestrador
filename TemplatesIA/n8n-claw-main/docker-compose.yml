@@ -1,0 +1,239 @@
+version: '3.8'
+
+services:
+  # ── n8n ─────────────────────────────────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-claw
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678}
+      - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - GENERIC_TIMEZONE=${TIMEZONE:-Europe/Berlin}
+      - N8N_LOG_LEVEL=info
+      - N8N_SECURE_COOKIE=false
+      # API keys (Anthropic, Embeddings) are stored in DB (tools_config table)
+      # and read by workflows at runtime via PostgREST — not as env vars
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=db
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=postgres
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - n8n-claw-net
+
+  # ── PostgreSQL (for Supabase) ───────────────────────────────
+  db:
+    image: supabase/postgres:17.6.1.063
+    container_name: n8n-claw-db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./supabase/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - n8n-claw-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  # ── Supabase REST API (PostgREST) ───────────────────────────
+  rest:
+    image: postgrest/postgrest:v14.5
+    container_name: n8n-claw-rest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      PGRST_DB_URI: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/postgres
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${SUPABASE_JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - n8n-claw-net
+
+  # ── Kong (API Gateway — routes /rest/v1 to PostgREST) ──────
+  kong:
+    image: kong:2.8.1
+    container_name: n8n-claw-kong
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    volumes:
+      - ./supabase/kong.deployed.yml:/var/lib/kong/kong.yml:ro
+    depends_on:
+      - rest
+    networks:
+      - n8n-claw-net
+
+  # ── Supabase Studio (Web UI) ────────────────────────────────
+  studio:
+    image: supabase/studio:20250113-83c9420
+    container_name: n8n-claw-studio
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: n8n-claw
+      DEFAULT_PROJECT_NAME: n8n-claw
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_PUBLIC_URL: http://kong:8000
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      AUTH_JWT_SECRET: ${SUPABASE_JWT_SECRET}
+    depends_on:
+      - meta
+    networks:
+      - n8n-claw-net
+
+  # ── Postgres Meta (for Studio) ───────────────────────────────
+  meta:
+    image: supabase/postgres-meta:v0.95.2
+    container_name: n8n-claw-meta
+    restart: unless-stopped
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: db
+      PG_META_DB_PORT: 5432
+      PG_META_DB_USER: postgres
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_META_DB_NAME: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - n8n-claw-net
+
+
+  # ── Email Bridge (IMAP/SMTP REST API) ──────────────────────
+  email-bridge:
+    build: ./email-bridge
+    container_name: n8n-claw-email-bridge
+    restart: unless-stopped
+    expose:
+      - "3100"
+    networks:
+      - n8n-claw-net
+
+  # ── File Bridge (temporary file storage for agent binary passthrough) ──
+  file-bridge:
+    build: ./file-bridge
+    container_name: n8n-claw-file-bridge
+    restart: unless-stopped
+    expose:
+      - "3200"
+    volumes:
+      - file_bridge_data:/data
+    environment:
+      - UPLOAD_TTL_HOURS=24
+      - MAX_FILE_SIZE_MB=200
+    networks:
+      - n8n-claw-net
+
+  # ── Browser Bridge (Browser Use REST wrapper for agentic browser actions) ──
+  browser-bridge:
+    build: ./browser-bridge
+    container_name: n8n-claw-browser-bridge
+    restart: unless-stopped
+    expose:
+      - "3400"
+    environment:
+      - SUPABASE_URL=http://kong:8000
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
+      - BROWSER_BRIDGE_MAX_SESSIONS=${BROWSER_BRIDGE_MAX_SESSIONS:-5}
+      - BROWSER_BRIDGE_IDLE_TIMEOUT_S=${BROWSER_BRIDGE_IDLE_TIMEOUT_S:-1800}
+    mem_limit: 3g
+    networks:
+      - n8n-claw-net
+
+  # ── Discord Bridge (Gateway → webhook, optional — enabled via COMPOSE_PROFILES=discord) ──
+  discord-bridge:
+    build: ./discord-bridge
+    container_name: n8n-claw-discord-bridge
+    profiles: ["discord"]
+    restart: unless-stopped
+    expose:
+      - "3300"
+    environment:
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/adapter
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-}
+      - BRIDGE_PORT=3300
+    networks:
+      - n8n-claw-net
+
+  # ── Crawl4AI (Web Reader — clean markdown from URLs) ────────
+  crawl4ai:
+    image: unclecode/crawl4ai:latest
+    container_name: n8n-claw-crawl4ai
+    restart: unless-stopped
+    environment:
+      # >= 0.9.0 binds loopback-only without a token; with it, binds 0.0.0.0.
+      - CRAWL4AI_API_TOKEN=${CRAWL4AI_API_TOKEN}
+    shm_size: "2g"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    networks:
+      - n8n-claw-net
+
+  # ── SearXNG (Web Search) ────────────────────────────────────
+  searxng:
+    image: searxng/searxng:latest
+    container_name: n8n-claw-searxng
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8888:8080"
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    networks:
+      - n8n-claw-net
+
+volumes:
+  n8n_data:
+  db_data:
+  file_bridge_data:
+
+networks:
+  n8n-claw-net:
+    driver: bridge

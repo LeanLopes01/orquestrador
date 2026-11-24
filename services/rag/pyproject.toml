@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unity-rag"
+version = "0.1.0"
+description = "RAG local do DiceVTT: Pointer RAG de C#, documentação por chunks, Chroma e AirLLM."
+requires-python = ">=3.11"
+dependencies = [
+  "pypdf>=5,<7",
+  "sentence-transformers>=3.0",
+  "chromadb>=1.0",
+  "watchdog>=4.0",
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "torch>=2.4",
+  "transformers>=4.49,<6",
+  # AirLLM vem do checkout local: pip install -e airllm-main/air_llm
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[project.scripts]
+unity-rag = "unity_rag.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "integration: usa o SentenceTransformer real (modelo local)",
+  "airllm: smoke test real de geração (opt-in: RAG_AIRLLM_SMOKE=1)",
+]

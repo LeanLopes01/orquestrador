@@ -1,0 +1,16 @@
+[
+  {"input": "https://Docs.Unity3D.com:443/Manual/index.html#topo", "kind": "article", "canonical": "https://docs.unity3d.com/Manual/index.html"},
+  {"input": "http://example.com/a?b=1&c=2", "kind": "article", "canonical": "http://example.com/a?b=1&c=2"},
+  {"input": "https://exemplo-ação.com.br/página", "kind": "article", "canonical": "https://xn--exemplo-ao-n5a1c.com.br/p%C3%A1gina"},
+  {"input": "https://youtu.be/tywt9tOubEY", "kind": "video", "canonical": "https://www.youtube.com/watch?v=tywt9tOubEY"},
+  {"input": "https://www.youtube.com/watch?v=dtpthaIYa8g&list=PL123", "kind": "video", "canonical": "https://www.youtube.com/watch?v=dtpthaIYa8g"},
+  {"input": "https://www.youtube.com/shorts/tywt9tOubEY", "kind": "video", "canonical": "https://www.youtube.com/watch?v=tywt9tOubEY"},
+  {"input": "https://www.youtube.com/playlist?list=PL123", "error": true},
+  {"input": "https://www.youtube.com/watch?v=curto", "error": true},
+  {"input": "https://notyoutube.com/watch?v=tywt9tOubEY", "kind": "article", "canonical": "https://notyoutube.com/watch?v=tywt9tOubEY"},
+  {"input": "ftp://example.com/x", "error": true},
+  {"input": "https://user:pass@example.com/", "error": true},
+  {"input": "http://localhost:8080/", "error": true},
+  {"input": "http://192.168.0.10/", "error": true},
+  {"input": "https://intranet/", "error": true}
+]

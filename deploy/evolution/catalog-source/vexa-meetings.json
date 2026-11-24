@@ -1,0 +1,518 @@
+{
+  "id": "vexa-meetings",
+  "type": "native",
+  "source": "https://raw.githubusercontent.com/freddy-schuetz/n8n-claw-templates/fb71ed429520aa48b071b01a911f31293b56fae7/templates/vexa-meetings/workflow.json",
+  "sha256": "239a4d7f3fb5e429bed20d7736d9db7d499ca0ed9aad75d606b6d5ff6ec53714",
+  "manifest": {
+    "id": "vexa-meetings",
+    "name": "Vexa Meetings",
+    "version": "2.2.0",
+    "updated": "2026-08-13",
+    "type": "native",
+    "description": "Deploy transcription bots to Google Meet, Teams, and Zoom meetings, get transcripts, and share them (Vexa.ai API)",
+    "category": "meetings",
+    "credentials_required": [
+      {
+        "key": "vexa_api_key",
+        "label": "Vexa Bot API Key",
+        "hint": "The bot key, starts with vxa_bot_. Drives deploy_meeting_bot, list_bots and stop_bot. Get it at vexa.ai/dashboard under API keys."
+      },
+      {
+        "key": "vexa_tx_key",
+        "label": "Vexa Transcription API Key",
+        "hint": "The transcription key, starts with vxa_tx_. Drives get_transcript and share_transcript. Vexa rejects the bot key on these endpoints with HTTP 403, so both keys are required."
+      }
+    ],
+    "credentials_optional": [
+      {
+        "key": "vexa_url",
+        "label": "Vexa Base URL (self-hosted)",
+        "hint": "Only for self-hosted Vexa instances, e.g. http://localhost:8056. Leave empty to use the Vexa cloud."
+      },
+      {
+        "key": "vexa_bot_name",
+        "label": "Bot display name",
+        "hint": "Name the bot shows in every meeting, e.g. your assistant’s name. Set it once and it no longer depends on the model passing bot_name. Leave empty for \"Meeting Notetaker\"."
+      }
+    ],
+    "tools": [
+      {
+        "name": "deploy_meeting_bot",
+        "description": "Deploy a transcription bot to a Google Meet, Teams, or Zoom meeting and return the Vexa run ID for that session. Teams needs the full invitation link including the passcode"
+      },
+      {
+        "name": "get_transcript",
+        "description": "Get the transcript of a meeting, grouped into speaker blocks with timestamps. Refuses rather than return a different session when a vexa_run_id is given and does not match"
+      },
+      {
+        "name": "share_transcript",
+        "description": "Create a public, time limited link for a meeting transcript"
+      },
+      {
+        "name": "list_bots",
+        "description": "List all currently running meeting bots"
+      },
+      {
+        "name": "stop_bot",
+        "description": "Stop and remove a bot from a meeting"
+      }
+    ],
+    "notes": [
+      "BREAKING in 2.0.0: Vexa split its API into two scopes with separate keys. An installation that only has vexa_api_key will fail on every transcript call with HTTP 403 'Insufficient scope for this endpoint'. Add vexa_tx_key to fix it.",
+      "get_transcript returns up to 60000 characters, which is more than the 5000 character guideline for templates. A one hour meeting is roughly 70000 characters of speech, and a truncated transcript is useless for writing minutes. Beyond that limit the tool tells the model to fetch the rest with from_time and to_time.",
+      "Passages the transcription service cannot attribute are marked '(unknown speaker)' and are never folded into the previous speaker, so the model cannot invent an attribution.",
+      "Vexa addresses transcripts by the meeting room ID, and a recurring meeting reuses that ID for every session. GET /transcripts/{platform}/{id} then returns only the MOST RECENT run, silently, even when that run failed with zero segments while an older run holds the real recording. Verified against the live API on 2026-08-13: no query parameter and no alternative endpoint reaches an older run. deploy_meeting_bot therefore returns a run ID and get_transcript refuses when the run it received is not the one asked for. Older sessions of a recurring meeting are not retrievable at all."
+    ],
+    "author": "freddy-schuetz",
+    "license": "MIT",
+    "tested_n8n_version": "2.21.4"
+  },
+  "workflow": {
+    "format": "n8n-claw-template",
+    "format_version": 1,
+    "sub": {
+      "name": "MCP Sub: Vexa Meetings",
+      "settings": {
+        "executionOrder": "v1",
+        "callerPolicy": "workflowsFromSameOwner"
+      },
+      "nodes": [
+        {
+          "id": "sub-trigger",
+          "name": "Execute Workflow Trigger",
+          "type": "n8n-nodes-base.executeWorkflowTrigger",
+          "typeVersion": 1.1,
+          "position": [
+            0,
+            0
+          ],
+          "parameters": {
+            "inputSource": "passthrough"
+          }
+        },
+        {
+          "id": "sub-code",
+          "name": "Vexa Logic",
+          "type": "n8n-nodes-base.code",
+          "typeVersion": 2,
+          "position": [
+            256,
+            0
+          ],
+          "parameters": {
+            "jsCode": "const input = $input.first().json;\nconst action = input.action;\n\nconst SUPABASE_URL = '{{SUPABASE_URL}}';\nconst SUPABASE_KEY = '{{SUPABASE_SERVICE_KEY}}';\nconst pgHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };\n\n// Vexa splits its API into two scopes with separate keys. A bot key is rejected on\n// transcript endpoints and a transcription key is rejected on bot endpoints, both with\n// HTTP 403 \"Insufficient scope for this endpoint\". Verified against the live API.\nconst allCreds = await helpers.httpRequest({\n  method: 'GET',\n  url: SUPABASE_URL + '/rest/v1/template_credentials?template_id=eq.vexa-meetings&select=cred_key,cred_value',\n  headers: pgHeaders\n});\nconst creds = {};\nfor (const c of (allCreds || [])) creds[c.cred_key] = c.cred_value;\n\nconst apiKey = creds.vexa_api_key;\nconst txKey = creds.vexa_tx_key;\n\nconst MISSING = 'Vexa needs TWO separate keys since v2. Missing: KEYS. '\n  + 'Add them with add_credential: \"vexa_api_key\" is the bot key (starts with vxa_bot_) and drives '\n  + 'deploy_meeting_bot, list_bots and stop_bot. \"vexa_tx_key\" is the transcription key (starts with '\n  + 'vxa_tx_) and drives get_transcript and share_transcript. Both are in the Vexa dashboard under API keys.';\nconst missing = [];\nif (!apiKey) missing.push('vexa_api_key');\nif (!txKey) missing.push('vexa_tx_key');\nif (missing.length) {\n  return [{ json: { error: MISSING.replace('KEYS', missing.join(' and ')) } }];\n}\n\nconst API_BASE = String(creds.vexa_url || 'https://api.cloud.vexa.ai').replace(/\\/+$/, '');\nconst apiHeaders = { 'X-API-Key': apiKey, 'Content-Type': 'application/json' };\nconst txHeaders = { 'X-API-Key': txKey, 'Content-Type': 'application/json' };\n\n// Turns an httpRequest failure into a message that names the key at fault. A 403 here is\n// almost always the wrong scope rather than an invalid key.\nfunction apiError(err, scope) {\n  const msg = String((err && err.message) || err || '');\n  const key = scope === 'bot' ? 'vexa_api_key (vxa_bot_...)' : 'vexa_tx_key (vxa_tx_...)';\n  if (msg.indexOf('403') >= 0) {\n    return 'Vexa refused the request with 403 (insufficient scope). This endpoint needs ' + key\n      + '. Check that the right key is stored under that name.';\n  }\n  if (msg.indexOf('401') >= 0) {\n    return 'Vexa rejected the key with 401. Check ' + key + '.';\n  }\n  return msg;\n}\n\nfunction parseMeetingUrl(url) {\n  if (!url) return null;\n  url = String(url).trim();\n\n  // Google Meet: https://meet.google.com/abc-defg-hij\n  const gmeetMatch = url.match(/meet\\.google\\.com\\/([a-z]{3}-[a-z]{4}-[a-z]{3})/i);\n  if (gmeetMatch) return { platform: 'google_meet', native_meeting_id: gmeetMatch[1] };\n\n  // Microsoft Teams: https://teams.live.com/meet/1234567890123?p=XYZ\n  const teamsMatch = url.match(/teams\\.(?:live|microsoft)\\.com\\/(?:meet|l\\/meetup-join)\\/([^?&#]+)/);\n  if (teamsMatch) {\n    let meetingId = teamsMatch[1];\n    try { meetingId = decodeURIComponent(meetingId); } catch (e) { /* keep raw */ }\n    if (meetingId.slice(-2) === '/0') meetingId = meetingId.slice(0, -2);\n    const passcodeMatch = url.match(/[?&](?:p|passcode)=([^&#]+)/);\n    return { platform: 'teams', native_meeting_id: meetingId, passcode: passcodeMatch ? passcodeMatch[1] : undefined };\n  }\n\n  // Zoom: https://us05web.zoom.us/j/12345678901?pwd=...\n  const zoomMatch = url.match(/zoom\\.us\\/j\\/(\\d+)/);\n  if (zoomMatch) {\n    const pwdMatch = url.match(/[?&]pwd=([^&#]+)/);\n    return { platform: 'zoom', native_meeting_id: zoomMatch[1], passcode: pwdMatch ? pwdMatch[1] : undefined };\n  }\n\n  return null;\n}\n\n// Resolves platform + meeting id from either explicit params or a full URL.\nfunction resolveMeeting(inp) {\n  let platform = inp.platform;\n  let meetingId = inp.meeting_id;\n  if (inp.meeting_url && (!platform || !meetingId)) {\n    const parsed = parseMeetingUrl(inp.meeting_url);\n    if (parsed) {\n      platform = parsed.platform;\n      meetingId = parsed.native_meeting_id;\n    }\n  }\n  return { platform: platform, meetingId: meetingId };\n}\n\n// ── ACTION: deploy_meeting_bot ──\nif (action === 'deploy_meeting_bot') {\n  const meetingUrl = input.meeting_url;\n  if (!meetingUrl) {\n    return [{ json: { error: 'Parameter \"meeting_url\" is required. Provide a Google Meet, Teams, or Zoom URL.' } }];\n  }\n\n  const parsed = parseMeetingUrl(meetingUrl);\n  if (!parsed) {\n    return [{ json: { error: 'Could not parse meeting URL. Supported: Google Meet (meet.google.com/xxx-xxxx-xxx), Microsoft Teams (teams.live.com/meet/... or teams.microsoft.com/meet/...), Zoom (zoom.us/j/...)' } }];\n  }\n\n  if (!parsed.passcode && input.passcode) parsed.passcode = String(input.passcode).trim();\n\n  if (parsed.platform === 'teams' && !parsed.passcode) {\n    return [{ json: { error: 'Teams meeting without a passcode. Microsoft refuses the bot in that case, '\n      + 'so NO bot was deployed. Use the FULL invitation link (it ends in \"?p=...\") or give meeting ID and '\n      + 'passcode separately, then the link https://teams.microsoft.com/meet/MEETING_ID?p=PASSCODE can be built.' } }];\n  }\n\n  const body = {\n    platform: parsed.platform,\n    native_meeting_id: parsed.native_meeting_id\n  };\n  if (parsed.passcode) body.passcode = parsed.passcode;\n\n  // Vexa only picks up the passcode from the full meeting_url. A separate passcode field is\n  // silently ignored, which is why a Teams bot appears to be deployed and then never joins.\n  // google_meet is left alone, it works without a passcode.\n  if (parsed.platform !== 'google_meet') {\n    let joinUrl = meetingUrl;\n    const hasPasscodeInUrl = /[?&](?:p|passcode|pwd)=/.test(meetingUrl);\n    if (parsed.platform === 'teams' && !hasPasscodeInUrl && parsed.passcode) {\n      joinUrl = 'https://teams.microsoft.com/meet/' + parsed.native_meeting_id + '?p=' + parsed.passcode;\n    }\n    body.meeting_url = joinUrl;\n  }\n\n  if (input.language) body.language = String(input.language).trim();\n  // The display name the participants see. An instance can pin it with the optional\n  // vexa_bot_name credential so it never depends on the model remembering to pass it.\n  body.bot_name = (input.bot_name && String(input.bot_name).trim())\n    || (creds.vexa_bot_name && String(creds.vexa_bot_name).trim())\n    || 'Meeting Notetaker';\n  if (input.recording !== undefined && input.recording !== '') {\n    body.recording_enabled = input.recording === true || input.recording === 'true';\n  }\n\n  try {\n    const data = await helpers.httpRequest({\n      method: 'POST',\n      url: API_BASE + '/bots',\n      headers: apiHeaders,\n      body: JSON.stringify(body)\n    });\n\n    // The meeting ID of a Teams or Zoom room is stable, so a recurring meeting produces\n    // several Vexa runs under the same ID. /transcripts/{platform}/{id} then silently\n    // returns the NEWEST run. Capture Vexa's internal run ID now, while the run we just\n    // started is the newest one, so get_transcript can prove later which run it got.\n    let runId = data.id || null;\n    if (!runId) {\n      try {\n        const list = await helpers.httpRequest({\n          method: 'GET',\n          url: API_BASE + '/meetings',\n          headers: { 'X-API-Key': txKey }\n        });\n        const mine = (list.meetings || [])\n          .filter(function (x) {\n            return x.platform === parsed.platform && String(x.native_meeting_id) === String(parsed.native_meeting_id);\n          })\n          .sort(function (a, b) {\n            return Number(b.id || 0) - Number(a.id || 0);\n          });\n        if (mine.length) runId = mine[0].id;\n      } catch (e) { /* identity stays unknown, handled below */ }\n    }\n\n    let result = 'Bot deployed successfully!\\n';\n    result += '  Platform: ' + parsed.platform + '\\n';\n    result += '  Meeting ID: ' + parsed.native_meeting_id + '\\n';\n    result += '  Status: ' + (data.status || 'requested') + '\\n';\n    if (data.constructed_meeting_url) result += '  URL: ' + data.constructed_meeting_url + '\\n';\n    if (runId) result += '  Vexa run ID: ' + runId + '\\n';\n    result += '\\nThe bot will join the meeting shortly and start transcribing.\\n';\n    if (runId) {\n      result += '\\nIMPORTANT - remember the Vexa run ID ' + runId + ' for this meeting. To fetch the '\n        + 'transcript later, call get_transcript with platform=\"' + parsed.platform + '\", meeting_id=\"'\n        + parsed.native_meeting_id + '\" AND vexa_run_id=\"' + runId + '\". Without the run ID the tool '\n        + 'cannot prove which run it received, because a recurring meeting reuses the same meeting ID.';\n    } else {\n      result += '\\nWARNING: Vexa did not return a run ID for this deployment, so a later transcript '\n        + 'cannot be proven to belong to this run. Check the date the transcript reports before using it.';\n    }\n\n    return [{ json: { result } }];\n  } catch (err) {\n    return [{ json: { error: 'Failed to deploy bot: ' + apiError(err, 'bot') } }];\n  }\n\n// ── ACTION: get_transcript ──\n} else if (action === 'get_transcript') {\n  const m = resolveMeeting(input);\n  if (!m.platform || !m.meetingId) {\n    return [{ json: { error: 'Parameters \"platform\" (google_meet/teams/zoom) and \"meeting_id\" are required, or pass \"meeting_url\" instead.' } }];\n  }\n\n  let data;\n  try {\n    data = await helpers.httpRequest({\n      method: 'GET',\n      url: API_BASE + '/transcripts/' + encodeURIComponent(m.platform) + '/' + encodeURIComponent(m.meetingId),\n      headers: { 'X-API-Key': txKey }\n    });\n  } catch (err) {\n    return [{ json: { error: 'Failed to fetch transcript: ' + apiError(err, 'tx') } }];\n  }\n\n  // IDENTITY GUARD. Vexa addresses transcripts by the meeting room ID, which a recurring\n  // meeting reuses, and it returns the NEWEST run for that room without saying so. Verified\n  // against the live API: no query parameter and no alternative endpoint can reach an older\n  // run. So the only safe behaviour is to prove the run or hand back nothing.\n  const gotRun = data.id !== undefined && data.id !== null ? String(data.id) : '';\n  const wantRun = input.vexa_run_id ? String(input.vexa_run_id).trim() : '';\n\n  if (wantRun && gotRun && wantRun !== gotRun) {\n    return [{ json: { error:\n      'REFUSED: this is not the requested meeting. You asked for Vexa run ' + wantRun\n      + ', but Vexa returned run ' + gotRun + ' (started ' + (data.start_time || 'unknown')\n      + ', status ' + (data.status || 'unknown') + '). Meeting ID ' + m.meetingId + ' belongs to a '\n      + 'recurring meeting room, and Vexa only ever serves the most recent run for a room. The run '\n      + 'you asked for can no longer be retrieved through the API. NO transcript is returned, because '\n      + 'returning a different meeting would be worse than returning nothing. Tell the user plainly '\n      + 'that the transcript of that specific session is not retrievable.' } }];\n  }\n\n  const identity = 'Vexa run ID: ' + (gotRun || 'unknown') + '\\n'\n    + 'This transcript belongs to the meeting that started: ' + (data.start_time || 'unknown') + '\\n';\n  const unproven = !wantRun\n    ? 'WARNING: no vexa_run_id was supplied, so this transcript is NOT proven to be the meeting you '\n      + 'have in mind. Vexa serves the most recent run for meeting ID ' + m.meetingId + ', and a '\n      + 'recurring meeting reuses that ID. State the start date above to the user before using this '\n      + 'transcript, and do not assume it is a particular session.\\n'\n    : '';\n\n  const segments = data.segments || [];\n  if (segments.length === 0) {\n    let result = 'No transcript segments available in the run Vexa returned.\\n' + identity;\n    if (data.status) result += 'Status of that run: ' + data.status + '.\\n';\n    result += '\\nThis means one of three things: the bot is still joining, the meeting produced no '\n      + 'audio, or a LATER bot run into the same meeting room failed and is now masking an earlier '\n      + 'successful recording. Vexa cannot serve the earlier run. Do not report this as \"the meeting '\n      + 'had no content\" without saying which run was checked.';\n    return [{ json: { result } }];\n  }\n\n  const UNKNOWN = '(unknown speaker)';\n  const GAP_SECONDS = 12;\n\n  function isRealName(n) {\n    if (!n) return false;\n    if (n === 'Speaker' || n === 'Unknown') return false;\n    return String(n).indexOf('seg_') !== 0;\n  }\n  function clockOf(s) {\n    const t = s.absolute_start_time;\n    return t ? String(t).substring(11, 19) : '';\n  }\n  function toSeconds(hhmm) {\n    if (!hhmm) return null;\n    const p = String(hhmm).trim().split(':');\n    const h = parseInt(p[0], 10);\n    if (isNaN(h)) return null;\n    const mi = p.length > 1 ? parseInt(p[1], 10) || 0 : 0;\n    const se = p.length > 2 ? parseInt(p[2], 10) || 0 : 0;\n    return h * 3600 + mi * 60 + se;\n  }\n\n  const fromSec = toSeconds(input.from_time);\n  const toSec = toSeconds(input.to_time);\n\n  // 1) optional time window, evaluated on the wall clock of each segment\n  const kept = [];\n  for (const s of segments) {\n    const txt = String(s.text || '').trim();\n    if (!txt) continue;\n    const c = clockOf(s);\n    if ((fromSec !== null || toSec !== null) && c) {\n      const cs = toSeconds(c);\n      if (fromSec !== null && cs < fromSec) continue;\n      if (toSec !== null && cs > toSec) continue;\n    }\n    kept.push(s);\n  }\n\n  if (kept.length === 0) {\n    return [{ json: { result: 'No transcript segments in the requested time window. Call get_transcript without from_time and to_time to see the full range first.' } }];\n  }\n\n  // 2) consecutive segments of the same speaker become one block. Segments without a speaker\n  // are NEVER folded into the previous one, that would invent an attribution.\n  const blocks = [];\n  for (const s of kept) {\n    const who = isRealName(s.speaker) ? s.speaker : UNKNOWN;\n    const start = s.start || 0;\n    const last = blocks.length ? blocks[blocks.length - 1] : null;\n    if (last && last.who === who && (start - last.end) <= GAP_SECONDS) {\n      last.text += ' ' + String(s.text || '').trim();\n      last.end = s.end || start;\n    } else {\n      blocks.push({ who: who, time: clockOf(s), text: String(s.text || '').trim(), end: s.end || start });\n    }\n  }\n\n  const names = [];\n  let unknownCount = 0;\n  for (const b of blocks) {\n    if (b.who === UNKNOWN) { unknownCount++; continue; }\n    if (names.indexOf(b.who) < 0) names.push(b.who);\n  }\n\n  const firstClock = clockOf(kept[0]);\n  const lastClock = clockOf(kept[kept.length - 1]);\n\n  let result = 'Transcript for ' + m.platform + ' meeting ' + m.meetingId + '\\n';\n  result += identity;\n  if (unproven) result += unproven;\n  result += 'Status: ' + (data.status || 'unknown') + '\\n';\n  if (data.end_time) result += 'Ended: ' + data.end_time + '\\n';\n  else result += 'Ended: not yet, this meeting is still running\\n';\n  result += 'Time range in this output: ' + firstClock + ' to ' + lastClock + '\\n';\n  result += 'Speakers identified: ' + (names.length ? names.join(', ') : 'none') + '\\n';\n  if (unknownCount) {\n    result += 'NOTE: ' + unknownCount + ' passages could not be attributed to a speaker and are marked \"'\n      + UNKNOWN + '\". Do NOT guess who said them. Attribute a name only if the person identifies '\n      + 'themselves in the text.\\n';\n  }\n  if (!names.length) {\n    result += 'NOTE: this meeting has NO speaker names at all. Every line is a separate turn with a '\n      + 'timestamp, so a change of speaker is visible but not who is speaking. Do not assign names in '\n      + 'the minutes unless people name themselves.\\n';\n  }\n  result += '\\n--- Transcript ---\\n\\n';\n\n  for (const b of blocks) {\n    result += (b.time ? '[' + b.time + '] ' : '') + b.who + ': ' + b.text + '\\n';\n  }\n\n  // 3) guard against flooding the model context. The hint has to be actionable, so it names\n  // the parameters and the real time range of the meeting.\n  const MAXLEN = 60000;\n  if (result.length > MAXLEN) {\n    result = result.substring(0, MAXLEN)\n      + '\\n\\n[... truncated. Call get_transcript again with from_time and to_time (format HH:MM) to '\n      + 'fetch a specific part. This meeting runs from ' + firstClock + ' to ' + lastClock + '.]';\n  }\n\n  return [{ json: { result } }];\n\n// ── ACTION: share_transcript ──\n} else if (action === 'share_transcript') {\n  const m = resolveMeeting(input);\n  if (!m.platform || !m.meetingId) {\n    return [{ json: { error: 'Parameters \"platform\" and \"meeting_id\" are required, or pass \"meeting_url\" instead.' } }];\n  }\n\n  try {\n    const data = await helpers.httpRequest({\n      method: 'POST',\n      url: API_BASE + '/transcripts/' + encodeURIComponent(m.platform) + '/' + encodeURIComponent(m.meetingId) + '/share',\n      headers: txHeaders\n    });\n\n    let result = 'Shareable transcript link created:\\n';\n    if (data.url) result += '  URL: ' + data.url + '\\n';\n    if (data.expires_at) result += '  Expires: ' + data.expires_at + '\\n';\n    if (data.expires_in_seconds) result += '  Valid for: ' + Math.round(data.expires_in_seconds / 60) + ' minutes\\n';\n    result += '\\nAnyone with this link can read the transcript until it expires.';\n\n    return [{ json: { result } }];\n  } catch (err) {\n    return [{ json: { error: 'Failed to create share link: ' + apiError(err, 'tx') } }];\n  }\n\n// ── ACTION: list_bots ──\n} else if (action === 'list_bots') {\n  try {\n    const data = await helpers.httpRequest({\n      method: 'GET',\n      url: API_BASE + '/bots/status',\n      headers: { 'X-API-Key': apiKey }\n    });\n\n    const bots = data.running_bots || data.running || [];\n    if (bots.length === 0) {\n      return [{ json: { result: 'No bots currently running.' } }];\n    }\n\n    let result = 'Running bots (' + bots.length + '):\\n\\n';\n    for (const bot of bots) {\n      result += '- ' + (bot.platform || 'unknown') + ' / ' + (bot.native_meeting_id || bot.meeting_id_from_name || '?') + '\\n';\n      result += '  Status: ' + (bot.normalized_status || bot.status || 'unknown') + '\\n';\n      if (bot.created_at) result += '  Started: ' + bot.created_at + '\\n';\n      result += '\\n';\n    }\n\n    return [{ json: { result } }];\n  } catch (err) {\n    return [{ json: { error: 'Failed to list bots: ' + apiError(err, 'bot') } }];\n  }\n\n// ── ACTION: stop_bot ──\n} else if (action === 'stop_bot') {\n  const m = resolveMeeting(input);\n  if (!m.platform || !m.meetingId) {\n    return [{ json: { error: 'Parameters \"platform\" and \"meeting_id\" are required, or pass \"meeting_url\" instead.' } }];\n  }\n\n  try {\n    await helpers.httpRequest({\n      method: 'DELETE',\n      url: API_BASE + '/bots/' + encodeURIComponent(m.platform) + '/' + encodeURIComponent(m.meetingId),\n      headers: { 'X-API-Key': apiKey }\n    });\n\n    return [{ json: { result: 'Bot stop request accepted. The bot will leave the meeting shortly.' } }];\n  } catch (err) {\n    return [{ json: { error: 'Failed to stop bot: ' + apiError(err, 'bot') } }];\n  }\n\n} else {\n  return [{ json: { error: 'Unknown action: \"' + action + '\". Available: deploy_meeting_bot, get_transcript, share_transcript, list_bots, stop_bot.' } }];\n}"
+          }
+        }
+      ],
+      "connections": {
+        "Execute Workflow Trigger": {
+          "main": [
+            [
+              {
+                "node": "Vexa Logic",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    "server": {
+      "name": "MCP: Vexa Meetings",
+      "settings": {
+        "executionOrder": "v1"
+      },
+      "nodes": [
+        {
+          "id": "mcp-trigger",
+          "name": "MCP Server Trigger",
+          "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+          "typeVersion": 2,
+          "position": [
+            0,
+            0
+          ],
+          "parameters": {
+            "path": "vexa-meetings"
+          }
+        },
+        {
+          "id": "tool-deploy",
+          "name": "deploy_meeting_bot",
+          "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+          "typeVersion": 2.2,
+          "position": [
+            0,
+            300
+          ],
+          "parameters": {
+            "name": "deploy_meeting_bot",
+            "description": "Deploy a transcription bot to a Google Meet, Teams, or Zoom meeting. The bot joins and transcribes the conversation. IMPORTANT for Microsoft Teams: the bot cannot join without the passcode, so pass the FULL invitation link (it ends in \"?p=...\") or supply the passcode parameter separately. Parameters: meeting_url (required), passcode (Teams/Zoom, if not already in the URL), language (optional ISO code such as en or de, auto-detected when omitted), bot_name (optional display name), recording (optional true/false). Returns a Vexa run ID; remember it and pass it to get_transcript as vexa_run_id, otherwise a recurring meeting can return the wrong session.",
+            "workflowId": {
+              "__rl": true,
+              "value": "REPLACE_SUB_WORKFLOW_ID",
+              "mode": "id"
+            },
+            "workflowInputs": {
+              "mappingMode": "defineBelow",
+              "value": {
+                "action": "deploy_meeting_bot",
+                "meeting_url": "={{ $fromAI('meeting_url', 'Full meeting URL (Google Meet, Teams, or Zoom)', 'string') }}",
+                "language": "={{ $fromAI('language', 'Transcription language code (e.g. en, de). Optional, default auto-detect.', 'string') }}",
+                "bot_name": "={{ $fromAI('bot_name', 'Display name for the bot in the meeting. Leave empty to use the name configured for this instance.', 'string') }}",
+                "recording": "={{ $fromAI('recording', 'Enable recording (true/false). Optional.', 'string') }}",
+                "passcode": "={{ $fromAI('passcode', 'Meeting passcode for Teams or Zoom, if it is not already part of the URL. Optional.', 'string') }}"
+              },
+              "matchingColumns": [],
+              "schema": [
+                {
+                  "id": "action",
+                  "displayName": "action",
+                  "type": "string",
+                  "required": true
+                },
+                {
+                  "id": "meeting_url",
+                  "displayName": "meeting_url",
+                  "type": "string",
+                  "description": "Full meeting URL (Google Meet, Teams, or Zoom)",
+                  "required": true
+                },
+                {
+                  "id": "language",
+                  "displayName": "language",
+                  "type": "string",
+                  "description": "Transcription language code (e.g. en, de)",
+                  "required": false
+                },
+                {
+                  "id": "bot_name",
+                  "displayName": "bot_name",
+                  "type": "string",
+                  "description": "Display name for the bot. Leave empty to use the instance default (vexa_bot_name)",
+                  "required": false
+                },
+                {
+                  "id": "recording",
+                  "displayName": "recording",
+                  "type": "string",
+                  "description": "Enable recording (true/false)",
+                  "required": false
+                },
+                {
+                  "id": "passcode",
+                  "displayName": "passcode",
+                  "type": "string",
+                  "description": "Meeting passcode for Teams or Zoom, if not already in the URL",
+                  "required": false
+                }
+              ],
+              "attemptToConvertTypes": false,
+              "convertFieldsToString": false
+            }
+          }
+        },
+        {
+          "id": "tool-transcript",
+          "name": "get_transcript",
+          "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+          "typeVersion": 2.2,
+          "position": [
+            250,
+            300
+          ],
+          "parameters": {
+            "name": "get_transcript",
+            "description": "Get the transcript of a meeting, grouped into speaker blocks with timestamps. CRITICAL: a recurring Teams or Zoom meeting reuses the same meeting ID for every session, and Vexa only ever serves the MOST RECENT run for a meeting ID. Always pass vexa_run_id, which deploy_meeting_bot returned when the bot was sent in; the tool then refuses rather than hand back a different session. Without it you may silently receive another meeting. Parameters: platform (google_meet/teams/zoom) and meeting_id, OR meeting_url; vexa_run_id (strongly recommended); from_time and to_time (HH:MM) to read part of a long meeting.",
+            "workflowId": {
+              "__rl": true,
+              "value": "REPLACE_SUB_WORKFLOW_ID",
+              "mode": "id"
+            },
+            "workflowInputs": {
+              "mappingMode": "defineBelow",
+              "value": {
+                "action": "get_transcript",
+                "platform": "={{ $fromAI('platform', 'Platform: google_meet, teams, or zoom', 'string') }}",
+                "meeting_id": "={{ $fromAI('meeting_id', 'Native meeting ID', 'string') }}",
+                "meeting_url": "={{ $fromAI('meeting_url', 'Full meeting URL (alternative to platform+meeting_id)', 'string') }}",
+                "from_time": "={{ $fromAI('from_time', 'Only return the transcript from this wall clock time onwards, format HH:MM. Optional.', 'string') }}",
+                "to_time": "={{ $fromAI('to_time', 'Only return the transcript up to this wall clock time, format HH:MM. Optional.', 'string') }}",
+                "vexa_run_id": "={{ $fromAI('vexa_run_id', 'Vexa run ID returned by deploy_meeting_bot for this exact session. Pass it whenever you know it.', 'string') }}"
+              },
+              "matchingColumns": [],
+              "schema": [
+                {
+                  "id": "action",
+                  "displayName": "action",
+                  "type": "string",
+                  "required": true
+                },
+                {
+                  "id": "platform",
+                  "displayName": "platform",
+                  "type": "string",
+                  "description": "Platform: google_meet, teams, or zoom",
+                  "required": false
+                },
+                {
+                  "id": "meeting_id",
+                  "displayName": "meeting_id",
+                  "type": "string",
+                  "description": "Native meeting ID",
+                  "required": false
+                },
+                {
+                  "id": "meeting_url",
+                  "displayName": "meeting_url",
+                  "type": "string",
+                  "description": "Full meeting URL",
+                  "required": false
+                },
+                {
+                  "id": "from_time",
+                  "displayName": "from_time",
+                  "type": "string",
+                  "description": "Start of the time window, format HH:MM (wall clock of the meeting)",
+                  "required": false
+                },
+                {
+                  "id": "to_time",
+                  "displayName": "to_time",
+                  "type": "string",
+                  "description": "End of the time window, format HH:MM (wall clock of the meeting)",
+                  "required": false
+                },
+                {
+                  "id": "vexa_run_id",
+                  "displayName": "vexa_run_id",
+                  "type": "string",
+                  "description": "Vexa run ID of the exact session, from deploy_meeting_bot. Proves the transcript belongs to the meeting you mean.",
+                  "required": false
+                }
+              ],
+              "attemptToConvertTypes": false,
+              "convertFieldsToString": false
+            }
+          }
+        },
+        {
+          "id": "tool-share",
+          "name": "share_transcript",
+          "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+          "typeVersion": 2.2,
+          "position": [
+            500,
+            300
+          ],
+          "parameters": {
+            "name": "share_transcript",
+            "description": "Create a public, time limited link to a meeting transcript. Anyone holding the link can read the transcript until it expires, so only use it when the user explicitly asks to share. Parameters: platform and meeting_id, OR meeting_url.",
+            "workflowId": {
+              "__rl": true,
+              "value": "REPLACE_SUB_WORKFLOW_ID",
+              "mode": "id"
+            },
+            "workflowInputs": {
+              "mappingMode": "defineBelow",
+              "value": {
+                "action": "share_transcript",
+                "platform": "={{ $fromAI('platform', 'Platform: google_meet, teams, or zoom', 'string') }}",
+                "meeting_id": "={{ $fromAI('meeting_id', 'Native meeting ID', 'string') }}",
+                "meeting_url": "={{ $fromAI('meeting_url', 'Full meeting URL', 'string') }}"
+              },
+              "matchingColumns": [],
+              "schema": [
+                {
+                  "id": "action",
+                  "displayName": "action",
+                  "type": "string",
+                  "required": true,
+                  "description": "Fixed action name, set by the tool"
+                },
+                {
+                  "id": "platform",
+                  "displayName": "platform",
+                  "type": "string",
+                  "required": false,
+                  "description": "Platform: google_meet, teams, or zoom"
+                },
+                {
+                  "id": "meeting_id",
+                  "displayName": "meeting_id",
+                  "type": "string",
+                  "required": false,
+                  "description": "Native meeting ID"
+                },
+                {
+                  "id": "meeting_url",
+                  "displayName": "meeting_url",
+                  "type": "string",
+                  "required": false,
+                  "description": "Full meeting URL (alternative to platform + meeting_id)"
+                }
+              ],
+              "attemptToConvertTypes": false,
+              "convertFieldsToString": false
+            }
+          }
+        },
+        {
+          "id": "tool-list",
+          "name": "list_bots",
+          "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+          "typeVersion": 2.2,
+          "position": [
+            0,
+            550
+          ],
+          "parameters": {
+            "name": "list_bots",
+            "description": "List all bots that are currently running in meetings, with their platform, meeting ID and status.",
+            "workflowId": {
+              "__rl": true,
+              "value": "REPLACE_SUB_WORKFLOW_ID",
+              "mode": "id"
+            },
+            "workflowInputs": {
+              "mappingMode": "defineBelow",
+              "value": {
+                "action": "list_bots"
+              },
+              "matchingColumns": [],
+              "schema": [
+                {
+                  "id": "action",
+                  "displayName": "action",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "attemptToConvertTypes": false,
+              "convertFieldsToString": false
+            }
+          }
+        },
+        {
+          "id": "tool-stop",
+          "name": "stop_bot",
+          "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+          "typeVersion": 2.2,
+          "position": [
+            250,
+            550
+          ],
+          "parameters": {
+            "name": "stop_bot",
+            "description": "Stop a running bot and make it leave the meeting. Parameters: platform and meeting_id, OR meeting_url.",
+            "workflowId": {
+              "__rl": true,
+              "value": "REPLACE_SUB_WORKFLOW_ID",
+              "mode": "id"
+            },
+            "workflowInputs": {
+              "mappingMode": "defineBelow",
+              "value": {
+                "action": "stop_bot",
+                "platform": "={{ $fromAI('platform', 'Platform: google_meet, teams, or zoom', 'string') }}",
+                "meeting_id": "={{ $fromAI('meeting_id', 'Native meeting ID', 'string') }}",
+                "meeting_url": "={{ $fromAI('meeting_url', 'Full meeting URL', 'string') }}"
+              },
+              "matchingColumns": [],
+              "schema": [
+                {
+                  "id": "action",
+                  "displayName": "action",
+                  "type": "string",
+                  "required": true,
+                  "description": "Fixed action name, set by the tool"
+                },
+                {
+                  "id": "platform",
+                  "displayName": "platform",
+                  "type": "string",
+                  "required": false,
+                  "description": "Platform: google_meet, teams, or zoom"
+                },
+                {
+                  "id": "meeting_id",
+                  "displayName": "meeting_id",
+                  "type": "string",
+                  "required": false,
+                  "description": "Native meeting ID"
+                },
+                {
+                  "id": "meeting_url",
+                  "displayName": "meeting_url",
+                  "type": "string",
+                  "required": false,
+                  "description": "Full meeting URL (alternative to platform + meeting_id)"
+                }
+              ],
+              "attemptToConvertTypes": false,
+              "convertFieldsToString": false
+            }
+          }
+        }
+      ],
+      "connections": {
+        "deploy_meeting_bot": {
+          "ai_tool": [
+            [
+              {
+                "node": "MCP Server Trigger",
+                "type": "ai_tool",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "get_transcript": {
+          "ai_tool": [
+            [
+              {
+                "node": "MCP Server Trigger",
+                "type": "ai_tool",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "share_transcript": {
+          "ai_tool": [
+            [
+              {
+                "node": "MCP Server Trigger",
+                "type": "ai_tool",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "list_bots": {
+          "ai_tool": [
+            [
+              {
+                "node": "MCP Server Trigger",
+                "type": "ai_tool",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "stop_bot": {
+          "ai_tool": [
+            [
+              {
+                "node": "MCP Server Trigger",
+                "type": "ai_tool",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    }
+  }
+}

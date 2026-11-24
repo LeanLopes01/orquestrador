@@ -1,0 +1,14 @@
+import { mkdir, copyFile, cp, readdir, rm } from 'node:fs/promises';
+import { resolve, sep } from 'node:path';
+const root=resolve(import.meta.dirname,'..');
+const target=resolve(root,'src-tauri/runtime');
+if(!target.startsWith(root+sep)||!target.endsWith(sep+'runtime'))throw Error('Invalid generated runtime path');
+await rm(target,{recursive:true,force:true});
+await mkdir(target,{recursive:true});
+await copyFile(process.execPath,resolve(target,'node.exe'));
+await mkdir(resolve(target,'services'),{recursive:true});
+for(const name of await readdir(resolve(root,'services')))if(/\.(mjs|py)$/.test(name))await copyFile(resolve(root,'services',name),resolve(target,'services',name));
+await cp(resolve(root,'dist'),resolve(target,'dist'),{recursive:true});
+await mkdir(resolve(target,'docs/planejamento-jarvis'),{recursive:true});
+await copyFile(resolve(root,'docs/planejamento-jarvis/catalogo-n8n-claw.json'),resolve(target,'docs/planejamento-jarvis/catalogo-n8n-claw.json'));
+process.stdout.write('Runtime desktop preparado com Node, UI e pontes de produção.\n');

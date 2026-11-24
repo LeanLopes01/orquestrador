@@ -1,0 +1,31 @@
+# Copie para .local/ingestion.toml. Caminhos relativos resolvem a partir DESTE arquivo.
+project_id = "dicevtt"
+output_root = "../documentacao_rag"        # mesmo diretório que docs_root do RAG
+state_path = "ingestion/state.sqlite3"
+cache_root = "ingestion/cache"
+manifests_root = "ingestion/manifests"
+log_path = "ingestion/logs/events.jsonl"
+token_path = "ingestion/api-token"
+catalog_path = "../docs/catalogo-fontes-documentacao-rag.md"   # botão "Coletar catálogo" da UI
+languages = ["pt-BR", "pt", "en"]
+default_mode = "online"                    # online | offline
+
+[service]
+host = "127.0.0.1"
+port = 8766
+
+[network]
+timeout_seconds = 20
+max_attempts = 3
+backoff_seconds = [2, 4]
+retry_budget_seconds = 60
+source_deadline_seconds = 90
+max_html_bytes = 10485760
+max_redirects = 5
+domain_pause_seconds = 1.0
+user_agent = "DiceVTT-RAG-Ingestion/0.1 (coleta local; uso pessoal)"
+
+[extraction]
+min_chars = 200
+include_comments = false                   # fóruns podem ligar por fonte no catálogo
+cache_disk_limit_mb = 2048

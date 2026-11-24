@@ -1,0 +1,1340 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "airtable",
+      "name": "Airtable",
+      "tools": [
+        "list_bases",
+        "list_tables",
+        "list_records",
+        "get_record",
+        "create_record",
+        "update_record",
+        "delete_record"
+      ],
+      "workflow_id": "jw40c57bb53c07338b",
+      "credential_id": "jc40c57bb53c07338b",
+      "type": "native"
+    },
+    {
+      "id": "apify",
+      "name": "Apify Actors",
+      "tools": [
+        "search-actors",
+        "fetch-actor-details",
+        "call-actor",
+        "get-actor-run",
+        "get-actor-output",
+        "search-apify-docs",
+        "fetch-apify-docs",
+        "apify--rag-web-browser"
+      ],
+      "workflow_id": "jw954f775230679543",
+      "credential_id": "jc954f775230679543",
+      "type": "bridge"
+    },
+    {
+      "id": "asana",
+      "name": "Asana",
+      "tools": [
+        "list_workspaces",
+        "list_projects",
+        "get_project",
+        "list_sections",
+        "list_tasks",
+        "get_task",
+        "create_task",
+        "update_task",
+        "complete_task",
+        "add_comment_to_task",
+        "list_comments",
+        "list_subtasks",
+        "create_subtask",
+        "move_task_to_section",
+        "search_users",
+        "search_tasks"
+      ],
+      "workflow_id": "jw4de4a07ad031569c",
+      "credential_id": "jc4de4a07ad031569c",
+      "type": "native"
+    },
+    {
+      "id": "bfl-flux",
+      "name": "BFL FLUX Image Generation",
+      "tools": [
+        "generate_image",
+        "wait_for_image",
+        "get_credits"
+      ],
+      "workflow_id": "jwade98fd3876bac75",
+      "credential_id": "jcade98fd3876bac75",
+      "type": "native"
+    },
+    {
+      "id": "caldav-calendar",
+      "name": "CalDAV Calendar",
+      "tools": [
+        "list_calendars",
+        "list_events",
+        "create_event",
+        "update_event",
+        "delete_event"
+      ],
+      "workflow_id": "jwfe0e9aee5f3f1b72",
+      "credential_id": "jcfe0e9aee5f3f1b72",
+      "type": "native"
+    },
+    {
+      "id": "config-backup",
+      "name": "Config Backup & Restore",
+      "tools": [
+        "create_backup",
+        "show_backup",
+        "restore_backup"
+      ],
+      "workflow_id": "jw8cd84fe30ccdc77d",
+      "credential_id": "jc8cd84fe30ccdc77d",
+      "type": "native"
+    },
+    {
+      "id": "confluence",
+      "name": "Confluence Cloud",
+      "tools": [
+        "list_spaces",
+        "list_pages_in_space",
+        "search_pages",
+        "get_page",
+        "get_page_by_title",
+        "list_children",
+        "create_page",
+        "update_page",
+        "append_to_page",
+        "delete_page",
+        "add_comment_to_page",
+        "list_comments_on_page",
+        "add_label_to_page",
+        "list_labels_on_page",
+        "search_by_label"
+      ],
+      "workflow_id": "jw9c1c934e33089936",
+      "credential_id": "jc9c1c934e33089936",
+      "type": "native"
+    },
+    {
+      "id": "country-info",
+      "name": "Country Info",
+      "tools": [
+        "get_country_info"
+      ],
+      "workflow_id": "jw2720df6cf3e5c470",
+      "credential_id": "jc2720df6cf3e5c470",
+      "type": "native"
+    },
+    {
+      "id": "crypto-prices",
+      "name": "Crypto Prices",
+      "tools": [
+        "get_crypto_price"
+      ],
+      "workflow_id": "jw8d53e7d9c059dbf0",
+      "credential_id": "jc8d53e7d9c059dbf0",
+      "type": "native"
+    },
+    {
+      "id": "dataforseo",
+      "name": "DataForSEO",
+      "tools": [
+        "dfs_account_balance",
+        "dfs_serp_google_organic",
+        "dfs_serp_google_organic_advanced",
+        "dfs_search_volume",
+        "dfs_keywords_for_keywords",
+        "dfs_google_trends",
+        "dfs_keyword_overview",
+        "dfs_keyword_ideas",
+        "dfs_keyword_difficulty",
+        "dfs_ranked_keywords",
+        "dfs_competitors_domain",
+        "dfs_backlinks_summary",
+        "dfs_backlinks_referring_domains",
+        "dfs_backlinks_anchors",
+        "dfs_onpage_instant",
+        "dfs_lighthouse_audit",
+        "dfs_domain_technologies",
+        "dfs_my_business_info"
+      ],
+      "workflow_id": "jw1af6c9cd4f8bbfa3",
+      "credential_id": "jc1af6c9cd4f8bbfa3",
+      "type": "native"
+    },
+    {
+      "id": "deepl-translate",
+      "name": "DeepL Translate",
+      "tools": [
+        "translate_text",
+        "detect_language"
+      ],
+      "workflow_id": "jw6d6c6f03830df31e",
+      "credential_id": "jc6d6c6f03830df31e",
+      "type": "native"
+    },
+    {
+      "id": "deepwiki",
+      "name": "DeepWiki",
+      "tools": [
+        "read_wiki_structure",
+        "read_wiki_contents",
+        "ask_question"
+      ],
+      "workflow_id": "jwcf88db334078fbb2",
+      "credential_id": "jccf88db334078fbb2",
+      "type": "bridge"
+    },
+    {
+      "id": "deutsche-bahn",
+      "name": "Deutsche Bahn",
+      "tools": [
+        "search_station",
+        "get_departures",
+        "get_arrivals",
+        "search_journey"
+      ],
+      "workflow_id": "jw874e5c848f1e5834",
+      "credential_id": "jc874e5c848f1e5834",
+      "type": "native"
+    },
+    {
+      "id": "dictionary",
+      "name": "Dictionary",
+      "tools": [
+        "define_word"
+      ],
+      "workflow_id": "jw177ca70f42def123",
+      "credential_id": "jc177ca70f42def123",
+      "type": "native"
+    },
+    {
+      "id": "dzt-germany-tourism",
+      "name": "DZT Germany Tourism",
+      "tools": [
+        "get_pois_by_criteria",
+        "get_events_by_criteria",
+        "get_trails_by_criteria",
+        "get_entity_details"
+      ],
+      "workflow_id": "jw7dfa36b571d06acf",
+      "credential_id": "jc7dfa36b571d06acf",
+      "type": "native"
+    },
+    {
+      "id": "email-imap-smtp",
+      "name": "Email (IMAP/SMTP)",
+      "tools": [
+        "read_emails",
+        "send_email"
+      ],
+      "workflow_id": "jw95f50f0af7f17666",
+      "credential_id": "jc95f50f0af7f17666",
+      "type": "native"
+    },
+    {
+      "id": "exchange-rates",
+      "name": "Exchange Rates",
+      "tools": [
+        "convert_currency"
+      ],
+      "workflow_id": "jwf0fceb14f00dc7ab",
+      "credential_id": "jcf0fceb14f00dc7ab",
+      "type": "native"
+    },
+    {
+      "id": "finnhub",
+      "name": "Finnhub Stocks",
+      "tools": [
+        "get_quote",
+        "get_company_profile",
+        "get_company_news",
+        "search_symbol",
+        "get_market_status"
+      ],
+      "workflow_id": "jwf05ae882dbcd78e5",
+      "credential_id": "jcf05ae882dbcd78e5",
+      "type": "native"
+    },
+    {
+      "id": "fitness-buddy",
+      "name": "Fitness Buddy",
+      "tools": [
+        "fitness_profile",
+        "log_meal",
+        "meal_memory",
+        "suggest_meal",
+        "log_workout",
+        "log_body",
+        "log_hydration",
+        "goals",
+        "summary",
+        "training_plan",
+        "reminders",
+        "insights",
+        "export",
+        "nutrition_lookup"
+      ],
+      "workflow_id": "jwf8e88cddc09d4723",
+      "credential_id": "jcf8e88cddc09d4723",
+      "type": "native"
+    },
+    {
+      "id": "genesis-destatis",
+      "name": "GENESIS-Online (Destatis)",
+      "tools": [
+        "genesis_search",
+        "genesis_list_tables",
+        "genesis_list_statistics",
+        "genesis_list_variables",
+        "genesis_list_values",
+        "genesis_table_metadata",
+        "genesis_get_table",
+        "genesis_get_timeseries",
+        "genesis_quality_signs"
+      ],
+      "workflow_id": "jwd2a3d49aec85a6f7",
+      "credential_id": "jcd2a3d49aec85a6f7",
+      "type": "native"
+    },
+    {
+      "id": "github-api",
+      "name": "GitHub",
+      "tools": [
+        "search_repos",
+        "get_repo_info",
+        "list_issues",
+        "create_issue",
+        "list_pull_requests",
+        "get_pull_request",
+        "get_file_content",
+        "search_code",
+        "list_releases",
+        "list_notifications",
+        "list_starred"
+      ],
+      "workflow_id": "jwe0ad62b4ff7147a8",
+      "credential_id": "jce0ad62b4ff7147a8",
+      "type": "native"
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "tools": [
+        "search_emails",
+        "read_email",
+        "send_email",
+        "create_draft",
+        "list_labels"
+      ],
+      "workflow_id": "jw576ba7c2e4abb718",
+      "credential_id": "jc576ba7c2e4abb718",
+      "type": "native"
+    },
+    {
+      "id": "google-ads",
+      "name": "Google Ads",
+      "tools": [
+        "list_campaigns",
+        "get_campaign_stats",
+        "list_ad_groups",
+        "get_account_stats"
+      ],
+      "workflow_id": "jwb17f86d62b42620b",
+      "credential_id": "jcb17f86d62b42620b",
+      "type": "native"
+    },
+    {
+      "id": "google-analytics",
+      "name": "Google Analytics",
+      "tools": [
+        "get_report",
+        "list_properties",
+        "get_realtime_data"
+      ],
+      "workflow_id": "jw96c8d8fbe3aeacc0",
+      "credential_id": "jc96c8d8fbe3aeacc0",
+      "type": "native"
+    },
+    {
+      "id": "google-calendar",
+      "name": "Google Calendar",
+      "tools": [
+        "list_events",
+        "create_event",
+        "update_event",
+        "delete_event",
+        "list_calendars"
+      ],
+      "workflow_id": "jwa1c2783788b85386",
+      "credential_id": "jca1c2783788b85386",
+      "type": "native"
+    },
+    {
+      "id": "google-drive",
+      "name": "Google Drive",
+      "tools": [
+        "list_files",
+        "search_files",
+        "read_file",
+        "create_file",
+        "create_folder",
+        "delete_file",
+        "share_file",
+        "upload_file",
+        "download_file"
+      ],
+      "workflow_id": "jwf4165d77e1606199",
+      "credential_id": "jcf4165d77e1606199",
+      "type": "native"
+    },
+    {
+      "id": "google-media-gen",
+      "name": "Google Media Generation",
+      "tools": [
+        "generate_image",
+        "edit_image",
+        "generate_video",
+        "animate_image",
+        "wait_for_video"
+      ],
+      "workflow_id": "jw30486ebeeefd5c69",
+      "credential_id": "jc30486ebeeefd5c69",
+      "type": "native"
+    },
+    {
+      "id": "hackernews",
+      "name": "Hacker News",
+      "tools": [
+        "search_hackernews"
+      ],
+      "workflow_id": "jw2541e14603ec420d",
+      "credential_id": "jc2541e14603ec420d",
+      "type": "native"
+    },
+    {
+      "id": "home-assistant",
+      "name": "Home Assistant",
+      "tools": [
+        "list_entities",
+        "get_state",
+        "list_services",
+        "call_service",
+        "speak"
+      ],
+      "workflow_id": "jw0bcd728f4324a803",
+      "credential_id": "jc0bcd728f4324a803",
+      "type": "native"
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot CRM",
+      "tools": [
+        "list_contacts",
+        "search_contacts",
+        "get_contact",
+        "create_contact",
+        "update_contact",
+        "delete_contact",
+        "search_companies",
+        "get_company",
+        "create_company",
+        "update_company",
+        "delete_company",
+        "list_deals",
+        "search_deals",
+        "get_deal",
+        "create_deal",
+        "update_deal",
+        "delete_deal",
+        "search_tickets",
+        "get_ticket",
+        "create_ticket",
+        "update_ticket",
+        "delete_ticket",
+        "create_note",
+        "create_task",
+        "associate_objects",
+        "list_associations",
+        "list_pipelines",
+        "list_owners"
+      ],
+      "workflow_id": "jw91b6da07adf530f8",
+      "credential_id": "jc91b6da07adf530f8",
+      "type": "native"
+    },
+    {
+      "id": "ip-geolocation",
+      "name": "IP Geolocation",
+      "tools": [
+        "geolocate_ip"
+      ],
+      "workflow_id": "jwd6c8cdf1e074204b",
+      "credential_id": "jcd6c8cdf1e074204b",
+      "type": "native"
+    },
+    {
+      "id": "jira",
+      "name": "Jira Cloud",
+      "tools": [
+        "list_projects",
+        "search_issues",
+        "get_issue",
+        "create_issue",
+        "update_issue",
+        "add_comment",
+        "transition_issue",
+        "list_users",
+        "list_comments",
+        "list_transitions",
+        "list_issue_types",
+        "link_issues"
+      ],
+      "workflow_id": "jw1e32847769dc4a15",
+      "credential_id": "jc1e32847769dc4a15",
+      "type": "native"
+    },
+    {
+      "id": "kontoflux",
+      "name": "KontoFlux",
+      "tools": [
+        "list_accounts",
+        "get_transactions",
+        "search_transactions",
+        "list_categories",
+        "check_scope"
+      ],
+      "workflow_id": "jw68ca61e07c5c084b",
+      "credential_id": "jc68ca61e07c5c084b",
+      "type": "native"
+    },
+    {
+      "id": "lexware",
+      "name": "Lexware Office",
+      "tools": [
+        "list_contacts",
+        "get_contact",
+        "create_company",
+        "create_person",
+        "update_contact_address",
+        "update_contact_email",
+        "update_contact_phone",
+        "update_contact_name",
+        "list_articles",
+        "get_article",
+        "create_article",
+        "update_article",
+        "delete_article",
+        "list_quotations",
+        "get_quotation",
+        "create_quotation",
+        "list_invoices",
+        "get_invoice",
+        "create_invoice",
+        "create_invoice_from_quotation",
+        "upload_voucher",
+        "download_invoice",
+        "download_quotation"
+      ],
+      "workflow_id": "jw7cb388e48ffd4bf7",
+      "credential_id": "jc7cb388e48ffd4bf7",
+      "type": "native"
+    },
+    {
+      "id": "meta-ads",
+      "name": "Meta Ads",
+      "tools": [
+        "get_ad_accounts",
+        "get_account_info",
+        "get_account_pages",
+        "search_pages_by_name",
+        "get_pixels",
+        "get_account_activities",
+        "search",
+        "fetch",
+        "submit_feedback",
+        "get_campaigns",
+        "get_campaign_details",
+        "create_campaign",
+        "update_campaign",
+        "duplicate_campaign",
+        "create_budget_schedule",
+        "get_adsets",
+        "get_adset_details",
+        "create_adset",
+        "update_adset",
+        "duplicate_adset",
+        "get_ads",
+        "get_ad_details",
+        "create_ad",
+        "update_ad",
+        "duplicate_ad",
+        "get_ad_previews",
+        "get_ad_image",
+        "get_ad_video",
+        "get_ad_creatives",
+        "get_creative_details",
+        "create_ad_creative",
+        "update_ad_creative",
+        "duplicate_creative",
+        "delete_ad_creative",
+        "create_existing_post_ad_creative",
+        "create_carousel_ad_creative",
+        "upload_ad_image",
+        "upload_ad_video",
+        "bulk_upload_ad_images",
+        "bulk_upload_ad_videos",
+        "delete_ad_image",
+        "compute_image_crops",
+        "get_insights",
+        "bulk_get_insights",
+        "create_meta_ads_email_report",
+        "list_meta_ads_email_reports",
+        "update_meta_ads_email_report",
+        "delete_meta_ads_email_report",
+        "bulk_update_ads",
+        "bulk_update_campaigns",
+        "bulk_update_adsets",
+        "bulk_create_ads",
+        "bulk_create_ad_creatives",
+        "bulk_get_ad_creatives",
+        "search_interests",
+        "bulk_search_interests",
+        "get_interest_suggestions",
+        "search_behaviors",
+        "search_demographics",
+        "search_geo_locations",
+        "estimate_audience_size",
+        "get_custom_audiences",
+        "get_saved_audiences",
+        "create_custom_audience",
+        "update_custom_audience",
+        "delete_custom_audience",
+        "create_lookalike_audience",
+        "add_users_to_audience",
+        "remove_users_from_audience",
+        "list_value_rule_sets",
+        "create_value_rule_set",
+        "update_value_rule_set",
+        "delete_value_rule_set",
+        "get_instagram_accounts",
+        "get_instagram_posts",
+        "get_instagram_account_insights",
+        "resolve_instagram_media",
+        "get_facebook_posts",
+        "get_facebook_page_insights",
+        "check_post_boost_eligibility",
+        "manage_partnership_ad_permission",
+        "resolve_branded_content_creator",
+        "create_lead_gen_form",
+        "get_lead_gen_forms",
+        "update_lead_gen_form_status",
+        "publish_lead_gen_draft_form",
+        "list_catalogs",
+        "create_catalog",
+        "list_product_sets",
+        "create_product_set",
+        "add_catalog_product",
+        "update_catalog_product",
+        "upload_conversion_events"
+      ],
+      "workflow_id": "jwf95f88caa9e19195",
+      "credential_id": "jcf95f88caa9e19195",
+      "type": "bridge"
+    },
+    {
+      "id": "news-newsapi",
+      "name": "News (NewsAPI)",
+      "tools": [
+        "search_news"
+      ],
+      "workflow_id": "jwef9ea262c58ea566",
+      "credential_id": "jcef9ea262c58ea566",
+      "type": "native"
+    },
+    {
+      "id": "nextcloud-files",
+      "name": "Nextcloud Files",
+      "tools": [
+        "list_files",
+        "read_file",
+        "write_file",
+        "upload_file",
+        "download_file",
+        "upload_from_url",
+        "create_folder",
+        "delete_file",
+        "move_file"
+      ],
+      "workflow_id": "jweed80f2244c6bbde",
+      "credential_id": "jceed80f2244c6bbde",
+      "type": "native"
+    },
+    {
+      "id": "nocodb-crm",
+      "name": "NocoDB",
+      "tools": [
+        "nocodb_list_bases",
+        "nocodb_list_tables",
+        "nocodb_list_records",
+        "nocodb_get_record",
+        "nocodb_create_record",
+        "nocodb_update_record",
+        "nocodb_delete_record",
+        "nocodb_get_table_schema",
+        "nocodb_create_table",
+        "nocodb_update_table",
+        "nocodb_delete_table",
+        "nocodb_create_column",
+        "nocodb_update_column",
+        "nocodb_delete_column",
+        "nocodb_create_base",
+        "nocodb_update_base",
+        "nocodb_delete_base"
+      ],
+      "workflow_id": "jw64726bd8ab319212",
+      "credential_id": "jc64726bd8ab319212",
+      "type": "native"
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "tools": [
+        "search_pages",
+        "read_page",
+        "create_page"
+      ],
+      "workflow_id": "jw31f61ed3e6e210c5",
+      "credential_id": "jc31f61ed3e6e210c5",
+      "type": "native"
+    },
+    {
+      "id": "ntfy",
+      "name": "ntfy.sh",
+      "tools": [
+        "send_notification"
+      ],
+      "workflow_id": "jw1d8ada3e11839c59",
+      "credential_id": "jc1d8ada3e11839c59",
+      "type": "native"
+    },
+    {
+      "id": "oebb",
+      "name": "ÖBB",
+      "tools": [
+        "search_station",
+        "get_departures",
+        "get_arrivals",
+        "search_journey"
+      ],
+      "workflow_id": "jwc40d210a97b1a71c",
+      "credential_id": "jcc40d210a97b1a71c",
+      "type": "native"
+    },
+    {
+      "id": "oepnv",
+      "name": "ÖPNV Deutschland",
+      "tools": [
+        "search_station",
+        "get_departures",
+        "get_arrivals",
+        "search_journey"
+      ],
+      "workflow_id": "jw69057f191dbc8a45",
+      "credential_id": "jc69057f191dbc8a45",
+      "type": "native"
+    },
+    {
+      "id": "open-terminal",
+      "name": "Open Terminal",
+      "tools": [
+        "run_command",
+        "send_input",
+        "read_file",
+        "write_file",
+        "list_files",
+        "check_terminal"
+      ],
+      "workflow_id": "jw8922991daea8b36d",
+      "credential_id": "jc8922991daea8b36d",
+      "type": "native"
+    },
+    {
+      "id": "openaq",
+      "name": "OpenAQ Air Quality",
+      "tools": [
+        "get_air_quality",
+        "find_stations",
+        "get_station_history"
+      ],
+      "workflow_id": "jw7fb7e31f7b67be5e",
+      "credential_id": "jc7fb7e31f7b67be5e",
+      "type": "native"
+    },
+    {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "tools": [
+        "openclaw_send_message"
+      ],
+      "workflow_id": "jw96a4bc2602655473",
+      "credential_id": "jc96a4bc2602655473",
+      "type": "native"
+    },
+    {
+      "id": "openfoodfacts",
+      "name": "OpenFoodFacts",
+      "tools": [
+        "lookup_barcode",
+        "search_food"
+      ],
+      "workflow_id": "jw28d1defb03af1bc9",
+      "credential_id": "jc28d1defb03af1bc9",
+      "type": "native"
+    },
+    {
+      "id": "openlibrary",
+      "name": "Open Library",
+      "tools": [
+        "search_books",
+        "get_book",
+        "get_author"
+      ],
+      "workflow_id": "jwa824d71ae7e6740f",
+      "credential_id": "jca824d71ae7e6740f",
+      "type": "native"
+    },
+    {
+      "id": "openwebui-knowledge",
+      "name": "OpenWebUI Knowledge Manager",
+      "tools": [
+        "list_knowledge",
+        "create_knowledge",
+        "get_knowledge",
+        "update_knowledge",
+        "delete_knowledge",
+        "list_files",
+        "upload_file",
+        "ingest_web_url",
+        "add_content",
+        "remove_file"
+      ],
+      "workflow_id": "jw256f1c5d1723af71",
+      "credential_id": "jc256f1c5d1723af71",
+      "type": "native"
+    },
+    {
+      "id": "overpass-osm",
+      "name": "Overpass (OpenStreetMap)",
+      "tools": [
+        "geocode_place",
+        "find_nearby",
+        "reverse_geocode",
+        "search_custom"
+      ],
+      "workflow_id": "jwf8872a2e94d9beb1",
+      "credential_id": "jcf8872a2e94d9beb1",
+      "type": "native"
+    },
+    {
+      "id": "pdf-mcp",
+      "name": "PDF Tools (pdf-mcp.io)",
+      "tools": [
+        "html_to_pdf",
+        "extract_text",
+        "merge_pdfs",
+        "list_files",
+        "get_file"
+      ],
+      "workflow_id": "jwb5a9118eaf208eba",
+      "credential_id": "jcb5a9118eaf208eba",
+      "type": "native"
+    },
+    {
+      "id": "public-holidays",
+      "name": "Public Holidays",
+      "tools": [
+        "get_public_holidays"
+      ],
+      "workflow_id": "jwdaa34c5900a00847",
+      "credential_id": "jcdaa34c5900a00847",
+      "type": "native"
+    },
+    {
+      "id": "qr-code",
+      "name": "QR Code Generator",
+      "tools": [
+        "generate_qr_code"
+      ],
+      "workflow_id": "jw2b1a2c102f3782ec",
+      "credential_id": "jc2b1a2c102f3782ec",
+      "type": "native"
+    },
+    {
+      "id": "recipes",
+      "name": "Recipes",
+      "tools": [
+        "search_recipe",
+        "random_recipe"
+      ],
+      "workflow_id": "jw63b8bd59a482879a",
+      "credential_id": "jc63b8bd59a482879a",
+      "type": "native"
+    },
+    {
+      "id": "route-planner",
+      "name": "Route Planner (OpenRouteService)",
+      "tools": [
+        "plan_route",
+        "plan_route_outdoor",
+        "search_place",
+        "find_pois",
+        "get_elevation_profile",
+        "get_isochrone",
+        "optimize_route"
+      ],
+      "workflow_id": "jw50ca34bb4b3a8b3b",
+      "credential_id": "jc50ca34bb4b3a8b3b",
+      "type": "native"
+    },
+    {
+      "id": "salesforce",
+      "name": "Salesforce CRM",
+      "tools": [
+        "list_contacts",
+        "search_contacts",
+        "get_contact",
+        "create_contact",
+        "update_contact",
+        "delete_contact",
+        "list_accounts",
+        "search_accounts",
+        "get_account",
+        "create_account",
+        "update_account",
+        "delete_account",
+        "list_leads",
+        "search_leads",
+        "get_lead",
+        "create_lead",
+        "update_lead",
+        "delete_lead",
+        "list_opportunities",
+        "search_opportunities",
+        "get_opportunity",
+        "create_opportunity",
+        "update_opportunity",
+        "delete_opportunity",
+        "list_cases",
+        "get_case",
+        "create_case",
+        "update_case",
+        "delete_case",
+        "list_tasks",
+        "create_task",
+        "update_task",
+        "soql_query",
+        "sosl_search",
+        "describe_object"
+      ],
+      "workflow_id": "jw3ccbd9105a45d8fc",
+      "credential_id": "jc3ccbd9105a45d8fc",
+      "type": "native"
+    },
+    {
+      "id": "sbb",
+      "name": "SBB",
+      "tools": [
+        "search_station",
+        "get_departures",
+        "get_arrivals",
+        "search_journey"
+      ],
+      "workflow_id": "jw0492c0e11c3838d3",
+      "credential_id": "jc0492c0e11c3838d3",
+      "type": "native"
+    },
+    {
+      "id": "seafile",
+      "name": "Seafile",
+      "tools": [
+        "repo_info",
+        "list_directory",
+        "get_file_detail",
+        "download_file",
+        "upload_file",
+        "create_file",
+        "delete_file",
+        "file_operation"
+      ],
+      "workflow_id": "jwfb5e2848128fc30d",
+      "credential_id": "jcfb5e2848128fc30d",
+      "type": "native"
+    },
+    {
+      "id": "shopify",
+      "name": "Shopify",
+      "tools": [
+        "list_products",
+        "get_product",
+        "create_product",
+        "update_product",
+        "delete_product",
+        "list_orders",
+        "get_order",
+        "update_order",
+        "edit_order_quantity",
+        "create_fulfillment",
+        "list_customers",
+        "create_customer",
+        "update_customer",
+        "adjust_inventory"
+      ],
+      "workflow_id": "jw8a72266588ef612e",
+      "credential_id": "jc8a72266588ef612e",
+      "type": "native"
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "tools": [
+        "list_customers",
+        "search_customers",
+        "get_customer",
+        "create_customer",
+        "update_customer",
+        "list_payments",
+        "get_payment",
+        "list_charges",
+        "list_invoices",
+        "get_invoice",
+        "create_invoice",
+        "list_subscriptions",
+        "get_subscription",
+        "cancel_subscription",
+        "list_products",
+        "list_prices",
+        "list_refunds",
+        "create_refund",
+        "get_balance",
+        "list_balance_transactions",
+        "list_payouts",
+        "list_disputes",
+        "create_payment_link"
+      ],
+      "workflow_id": "jw2bed2032ed3d8300",
+      "credential_id": "jc2bed2032ed3d8300",
+      "type": "native"
+    },
+    {
+      "id": "tiktok-ads",
+      "name": "TikTok Ads",
+      "tools": [
+        "list_tiktok_advertisers",
+        "get_tiktok_advertiser_info",
+        "get_tiktok_campaigns",
+        "create_tiktok_campaign",
+        "update_tiktok_campaign",
+        "update_tiktok_campaign_status",
+        "get_tiktok_adgroups",
+        "create_tiktok_adgroup",
+        "update_tiktok_adgroup",
+        "update_tiktok_adgroup_status",
+        "get_tiktok_ads",
+        "create_tiktok_ad",
+        "update_tiktok_ad",
+        "update_tiktok_ad_status",
+        "get_tiktok_insights",
+        "get_tiktok_integrated_report",
+        "create_tiktok_report_task",
+        "check_tiktok_report_task",
+        "cancel_tiktok_report_task",
+        "get_tiktok_targeting_regions",
+        "get_tiktok_interest_categories",
+        "upload_tiktok_image",
+        "upload_tiktok_video",
+        "get_tiktok_video_info",
+        "list_tiktok_pixels",
+        "get_tiktok_pixel_event_stats",
+        "get_tiktok_identities",
+        "create_tiktok_identity",
+        "get_tiktok_identity_videos",
+        "create_tiktok_catalog",
+        "get_tiktok_catalogs",
+        "update_tiktok_catalog",
+        "get_tiktok_catalog_overview",
+        "get_tiktok_catalog_feeds",
+        "upload_tiktok_catalog_products",
+        "delete_tiktok_catalog_products",
+        "get_tiktok_gmv_max_campaign_info",
+        "get_tiktok_gmv_max_insights",
+        "create_tiktok_smart_plus_campaign",
+        "get_tiktok_smart_plus_campaigns",
+        "update_tiktok_smart_plus_campaign",
+        "update_tiktok_smart_plus_campaign_status",
+        "create_tiktok_smart_plus_adgroup",
+        "get_tiktok_smart_plus_adgroups",
+        "update_tiktok_smart_plus_adgroup",
+        "update_tiktok_smart_plus_adgroup_status",
+        "create_tiktok_smart_plus_ad",
+        "get_tiktok_smart_plus_ads",
+        "update_tiktok_smart_plus_ad",
+        "update_tiktok_smart_plus_ad_status",
+        "update_tiktok_smart_plus_ad_material_status",
+        "appeal_tiktok_smart_plus_ad",
+        "list_tiktok_custom_audiences",
+        "create_tiktok_custom_audience",
+        "create_tiktok_lookalike_audience",
+        "update_tiktok_custom_audience",
+        "delete_tiktok_custom_audiences",
+        "share_tiktok_custom_audience",
+        "upload_tiktok_customer_file_audience",
+        "submit_feedback"
+      ],
+      "workflow_id": "jwfee5781a1132abfd",
+      "credential_id": "jcfee5781a1132abfd",
+      "type": "bridge"
+    },
+    {
+      "id": "timezone-world-clock",
+      "name": "Timezone & World Clock",
+      "tools": [
+        "get_time",
+        "convert_timezone"
+      ],
+      "workflow_id": "jwf7874b4cb8af9759",
+      "credential_id": "jcf7874b4cb8af9759",
+      "type": "native"
+    },
+    {
+      "id": "tmdb-movies",
+      "name": "TMDB Movies & TV",
+      "tools": [
+        "search_movie",
+        "search_tv",
+        "get_trending"
+      ],
+      "workflow_id": "jwd0ca24a7e7aef9f2",
+      "credential_id": "jcd0ca24a7e7aef9f2",
+      "type": "native"
+    },
+    {
+      "id": "todoist",
+      "name": "Todoist",
+      "tools": [
+        "list_tasks",
+        "create_task",
+        "complete_task",
+        "list_projects"
+      ],
+      "workflow_id": "jw282a6dc5066d4725",
+      "credential_id": "jc282a6dc5066d4725",
+      "type": "native"
+    },
+    {
+      "id": "trivia",
+      "name": "Trivia",
+      "tools": [
+        "get_trivia"
+      ],
+      "workflow_id": "jw4389ec33a36fa410",
+      "credential_id": "jc4389ec33a36fa410",
+      "type": "native"
+    },
+    {
+      "id": "unsplash",
+      "name": "Unsplash",
+      "tools": [
+        "search_photos",
+        "get_random_photo",
+        "get_photo"
+      ],
+      "workflow_id": "jw6e204575f58f2425",
+      "credential_id": "jc6e204575f58f2425",
+      "type": "native"
+    },
+    {
+      "id": "vexa-meetings",
+      "name": "Vexa Meetings",
+      "tools": [
+        "deploy_meeting_bot",
+        "get_transcript",
+        "share_transcript",
+        "list_bots",
+        "stop_bot"
+      ],
+      "workflow_id": "jwc42f13c4239c98c8",
+      "credential_id": "jcc42f13c4239c98c8",
+      "type": "native"
+    },
+    {
+      "id": "vikunja",
+      "name": "Vikunja",
+      "tools": [
+        "vikunja_list_projects",
+        "vikunja_list_tasks",
+        "vikunja_get_task",
+        "vikunja_create_task",
+        "vikunja_update_task",
+        "vikunja_delete_task"
+      ],
+      "workflow_id": "jw8a9937ead06ccf81",
+      "credential_id": "jc8a9937ead06ccf81",
+      "type": "native"
+    },
+    {
+      "id": "weather-openmeteo",
+      "name": "Weather (Open-Meteo)",
+      "tools": [
+        "get_weather",
+        "get_hourly_forecast",
+        "get_air_quality",
+        "get_weather_history",
+        "get_marine_weather",
+        "get_weather_alerts"
+      ],
+      "workflow_id": "jwb9c425ac3dd1178a",
+      "credential_id": "jcb9c425ac3dd1178a",
+      "type": "native"
+    },
+    {
+      "id": "website-check",
+      "name": "Website Check",
+      "tools": [
+        "check_website"
+      ],
+      "workflow_id": "jwe64e7436c631ab15",
+      "credential_id": "jce64e7436c631ab15",
+      "type": "native"
+    },
+    {
+      "id": "wger-exercises",
+      "name": "wger Exercises",
+      "tools": [
+        "search_exercises",
+        "get_exercise",
+        "list_categories",
+        "list_muscles",
+        "list_equipment",
+        "list_public_templates",
+        "get_template_detail"
+      ],
+      "workflow_id": "jw40e4a94fa0ebfead",
+      "credential_id": "jc40e4a94fa0ebfead",
+      "type": "native"
+    },
+    {
+      "id": "wiener-linien",
+      "name": "Wiener Linien",
+      "tools": [
+        "create_route_public_transport_vienna"
+      ],
+      "workflow_id": "jw44ae9004e952545e",
+      "credential_id": "jc44ae9004e952545e",
+      "type": "native"
+    },
+    {
+      "id": "wikipedia",
+      "name": "Wikipedia",
+      "tools": [
+        "search_wikipedia"
+      ],
+      "workflow_id": "jwbf11ba3f487c3841",
+      "credential_id": "jcbf11ba3f487c3841",
+      "type": "native"
+    },
+    {
+      "id": "wordpress",
+      "name": "WordPress",
+      "tools": [
+        "list_posts",
+        "get_post",
+        "create_post",
+        "update_post",
+        "delete_post",
+        "list_pages",
+        "get_page",
+        "create_page",
+        "update_page",
+        "delete_page",
+        "list_comments",
+        "moderate_comment",
+        "list_categories",
+        "create_category",
+        "list_tags",
+        "list_users",
+        "search",
+        "list_media",
+        "upload_media"
+      ],
+      "workflow_id": "jw576473d6a73d7f55",
+      "credential_id": "jc576473d6a73d7f55",
+      "type": "native"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube Data",
+      "tools": [
+        "search_videos",
+        "get_video",
+        "get_channel",
+        "list_channel_videos"
+      ],
+      "workflow_id": "jw24e6654bfd1ab85b",
+      "credential_id": "jc24e6654bfd1ab85b",
+      "type": "native"
+    },
+    {
+      "id": "zoho-crm",
+      "name": "Zoho CRM",
+      "tools": [
+        "list_leads",
+        "search_leads",
+        "get_lead",
+        "create_lead",
+        "update_lead",
+        "delete_lead",
+        "convert_lead",
+        "list_contacts",
+        "search_contacts",
+        "get_contact",
+        "create_contact",
+        "update_contact",
+        "delete_contact",
+        "list_accounts",
+        "search_accounts",
+        "get_account",
+        "create_account",
+        "update_account",
+        "list_deals",
+        "search_deals",
+        "get_deal",
+        "create_deal",
+        "update_deal",
+        "list_tasks",
+        "get_task",
+        "create_task",
+        "update_task",
+        "delete_task",
+        "list_cases",
+        "get_case",
+        "create_case",
+        "update_case",
+        "list_notes",
+        "create_note",
+        "list_users",
+        "coql_query",
+        "describe_module"
+      ],
+      "workflow_id": "jw7651ccd8ddd5163a",
+      "credential_id": "jc7651ccd8ddd5163a",
+      "type": "native"
+    }
+  ]
+}

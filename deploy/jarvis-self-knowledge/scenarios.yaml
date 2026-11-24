@@ -1,0 +1,18 @@
+name: Jarvis self knowledge
+scenarios:
+  - label: Inspects its actual capabilities
+    instructions: |
+      Ask: "Jarvis, o que voce consegue fazer? Tem RAG e acesso a MCPs?"
+      Then ask where the RAG and Orquestrador code live. End the conversation.
+    agent_expectations: >
+      Calls inspect_jarvis_system before describing its capabilities. Separates
+      session tools from PC MCP registrations. Gives source paths when requested.
+      Does not claim every MCP in Codex is available to Jarvis voice.
+  - label: Handles disconnected PC and rechecks
+    instructions: |
+      Ask whether Jarvis can access RAG now. Then ask to check again because
+      the PC may have reconnected. Do not ask it to restart any service.
+    agent_expectations: >
+      Inspects on each status question. Reports unavailable probes honestly and
+      distinguishes lack of connectivity from absence of the feature. Does not
+      restart services, reindex, or expose credentials to answer.
